@@ -7,9 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Contacts/Contacts.h>
 
-@interface ViewController : UIViewController
-
+@interface ViewController : UIViewController {
+}
 
 @end
 
