@@ -157,7 +157,7 @@
                             
                             dispatch_async(dispatch_get_main_queue(), ^ {
                                 
-                                 cellObject.image = image;
+                                cellObject.image = image;
                                 [self.tableView beginUpdates];
                                 [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects: [_model indexPathForObject:cellObject], nil] withRowAnimation:UITableViewRowAnimationNone];
                                 [self.tableView endUpdates];

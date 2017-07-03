@@ -26,7 +26,7 @@ typedef struct {
     
     int totalSize;
     int numbuerItemDelete;
-} ItemWillDeleteInfo;
+} ItemsWillDelete;
 
 #pragma mark - singleton
 
@@ -66,28 +66,35 @@ typedef struct {
         
         dispatch_async(_cacheImageQueue, ^ {
         
+            // Add key into keyList
             [_keyList addObject:key];
+            
+            // Get size of image
             int pixelImage = [self imageSize:image];
+            
+            // Add size to check condition
             _contactCacheSize += pixelImage;
+            
             NSLog(@"%u",_contactCacheSize/1024/1024);
             
+            // size of image < valid memory?
             if (pixelImage < _maxCacheSize) {
                 
-                int sizeDelete = _contactCacheSize - _maxCacheSize;
-                
-                if(sizeDelete > 0) {
-                    
-                    ItemWillDeleteInfo itemWillDeleteInfo = [self listItemWillDelete:sizeDelete];
-                    
-                    for (int i = 0; i < itemWillDeleteInfo.numbuerItemDelete; i++) {
-                        
-                        [_contactCache removeObjectForKey:[_keyList objectAtIndex:i]];
-                    }
-                    _contactCacheSize -= itemWillDeleteInfo.totalSize;
-                }
-          
-                [_contactCache setObject:[self makeRoundImage:image] forKey:key];
-
+//                int sizeDelete = _contactCacheSize - _maxCacheSize;
+//                
+//                if (sizeDelete > 0) {
+//                    
+//                    ItemsWillDelete itemsWillDelete = [self listItemWillDelete:sizeDelete];
+//                    
+//                    for (int i = 0; i < itemsWillDelete.numbuerItemDelete; i++) {
+//                        
+//                        [_contactCache removeObjectForKey:[_keyList objectAtIndex:i]];
+//                    }
+//                    _contactCacheSize -= itemsWillDelete.totalSize;
+//                }
+//          
+//                [_contactCache setObject:[self makeRoundImage:image] forKey:key];
+                [self writeToDirectory:[self makeRoundImage:image] forkey:key];
                 
             } else if (pixelImage == _maxCacheSize) {
             
@@ -96,12 +103,11 @@ typedef struct {
             }
         });
     }
-    
 }
 
 #pragma mark - delete list item
 
-- (ItemWillDeleteInfo)listItemWillDelete:(NSUInteger)sizeDelete {
+- (ItemsWillDelete)listItemWillDelete:(NSUInteger)sizeDelete {
     
     int totalSize = 0;
     int numbuerItemDelete = 0;
@@ -109,8 +115,9 @@ typedef struct {
     for (int i = 0; i < _keyList.count; i++) {
     
         if(totalSize < sizeDelete) {
+            
             // Total + size of item at index
-            totalSize += [self imageSize:[self getImageForKey:[_keyList objectAtIndex:i]]];
+            totalSize += [self imageSize:[_contactCache objectForKey:[_keyList objectAtIndex:i]]];
             numbuerItemDelete ++;
             
         } else {
@@ -119,35 +126,33 @@ typedef struct {
         }
     }
     
-    ItemWillDeleteInfo itemWillDeleteInfo;
-    itemWillDeleteInfo.numbuerItemDelete = numbuerItemDelete;
-    itemWillDeleteInfo.totalSize = totalSize;
-    return itemWillDeleteInfo;
+    ItemsWillDelete itemWillDelete;
+    itemWillDelete.numbuerItemDelete = numbuerItemDelete;
+    itemWillDelete.totalSize = totalSize;
+    return itemWillDelete;
 }
 
-#pragma mark - get to cache with
-
-- (UIImage*)getImageForKey:(NSString *)key {
-  
-    if(key) {
-        
-        return [_contactCache objectForKey:key];
-    } else {
-        
-        return nil;
-    }
-}
+#pragma mark - get to cache
 
 - (void)getImageForKey:(NSString *)key completionWith:(void(^)(UIImage* image))completion {
     
     dispatch_async(_cacheImageQueue, ^ {
         
-        if(key) {
+        if (key) {
             
             if (completion) {
                 
-                UIImage* image = [_contactCache objectForKey:key];
-                completion(image);
+                UIImage* image = [self getImageFromCache:key];
+                
+                if (image) {
+                    
+                    // Cache
+                    completion(image);
+                } else {
+                    
+                    // Disk
+                    completion([self getImageFromDirectory: key]);
+                }
             }
         } else {
             
@@ -160,9 +165,85 @@ typedef struct {
 }
 
 - (NSUInteger)imageSize:(UIImage*)image {
+    
     return [UIImageJPEGRepresentation(image, 1.0) length];
 }
 
+#pragma mark - write image into cache
+
+- (void)writeToCache:(UIImage *)image forkey:(NSString *)key {
+    
+    if (image && key) {
+        [_contactCache setObject:image forKey:key];
+    }
+}
+
+#pragma mark - write image into dir
+
+- (void)writeToDirectory:(UIImage *)image forkey:(NSString *)key {
+    
+    if (image != nil) {
+        
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString* documentsDirectory = [paths objectAtIndex:0];
+        NSString* path = [documentsDirectory stringByAppendingPathComponent:key];
+        NSString* filePath = [path stringByAppendingPathComponent:@"image.png"];
+       
+        BOOL isDirectory;
+        NSFileManager* fileManager = [NSFileManager defaultManager];
+        
+        if(![fileManager fileExistsAtPath:path isDirectory:&isDirectory]) {
+            
+            NSError* error = nil;
+            [fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error];
+           
+            if(error) {
+               
+                NSLog(@"folder creation failed. %@",[error localizedDescription]);
+            } else {
+                
+//                NSData* imageData = UIImagePNGRepresentation(image);
+                [UIImagePNGRepresentation(image) writeToFile:filePath atomically:YES];
+                
+            }
+            
+        }
+
+    }
+}
+
+#pragma mark - get image from cache
+
+- (UIImage *)getImageFromCache:(NSString *)key {
+    
+    if (key) {
+        
+        return [_contactCache objectForKey:key];
+    }
+    
+    return nil;
+}
+
+#pragma mark - get image from dir
+
+- (UIImage *)getImageFromDirectory:(NSString *)key {
+  
+    if (key) {
+        
+        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString* documentsDirectory = [paths objectAtIndex:0];
+        NSString* path = [documentsDirectory stringByAppendingPathComponent:key];
+        NSString* filePath = [path stringByAppendingPathComponent:@"image.png"];
+        
+        if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+         
+            UIImage* image = [UIImage imageWithContentsOfFile:filePath];
+            return image;
+        }
+    }
+    
+    return nil;
+}
 
 #pragma mark - draw image circle
 
@@ -180,18 +261,19 @@ typedef struct {
         
         rect = CGRectMake(0,0,imageWidth,imageWidth);
     }
+    
     // Begin a new image that will be the new image with the rounded corners
-//    UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
+    UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
+    
     // Add a clip before drawing anything, in the shape of an rounded rect
-    UIGraphicsBeginImageContext(rect.size);
     [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:imageWidth/2] addClip];
     [image drawInRect:rect];
-    
     UIImage* imageNew = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
     
-//    UIGraphicsEndImageContext();
+    // End
+    UIGraphicsEndImageContext();
     
     return imageNew;
 }
+
 @end
