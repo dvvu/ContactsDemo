@@ -16,7 +16,6 @@
 @property (nonatomic, strong) NSMutableArray<NSString*> *keyList;
 @property (nonatomic) NSUInteger maxCacheSize;
 @property (nonatomic) dispatch_queue_t cacheImageQueue;
-
 @end
 
 @implementation ContactCache
@@ -82,19 +81,14 @@ typedef struct {
                     }
                     _contactCacheSize -= itemWillDeleteInfo.totalSize;
                 }
-                
-                dispatch_async(dispatch_get_main_queue(), ^ {
-                
-                    [_contactCache setObject:image forKey:key];
-                });
+          
+                [_contactCache setObject:[self makeRoundImage:image] forKey:key];
+
                 
             } else if (pixelImage == _maxCacheSize) {
             
                 [_contactCache removeAllObjects];
-                dispatch_async(dispatch_get_main_queue(), ^ {
-                
-                    [_contactCache setObject:image forKey:key];
-                });
+                [_contactCache setObject:[self makeRoundImage:image] forKey:key];
             }
         });
     }
@@ -142,20 +136,23 @@ typedef struct {
 }
 
 - (void)getImageForKey:(NSString *)key completionWith:(void(^)(UIImage* image))completion {
-  
-    if(key) {
-        
-        if (completion) {
     
-            completion([_contactCache objectForKey:key]);
-        }
-    } else {
+    dispatch_async(_cacheImageQueue, ^ {
         
-        if (completion) {
+        if(key) {
             
-            completion(nil);
+            if (completion) {
+                UIImage* image = [_contactCache objectForKey:key];
+                completion(image);
+            }
+        } else {
+            
+            if (completion) {
+                
+                completion(nil);
+            }
         }
-    }
+    });
 }
 
 - (NSUInteger)imageSize:(UIImage*)image {
@@ -164,4 +161,41 @@ typedef struct {
     return [imageData length];
 }
 
+
+#pragma mark - draw image circle
+
+- (UIImage *)makeRoundImage:(UIImage *)image {
+    
+    //resize image
+    CGRect rect;
+    
+    if( image.size.width > image.size.height) {
+        
+        rect = CGRectMake(0,0,image.size.height,image.size.height);
+    } else {
+        
+        rect = CGRectMake(0,0,image.size.width,image.size.width);
+    }
+    
+    // Begin a new image that will be the new image with the rounded corners
+    UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
+    
+    // Add a clip before drawing anything, in the shape of an rounded rect
+    UIGraphicsBeginImageContext(rect.size);
+    
+    [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:image.size.width/2] addClip];
+    [image drawInRect:rect];
+    
+    // Get the imageV,
+    UIImage* imageNew = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    NSData* imageData = UIImagePNGRepresentation(imageNew);
+    
+    image = [UIImage imageWithData:imageData];
+    
+    UIGraphicsEndImageContext();
+    
+    return image;
+}
 @end

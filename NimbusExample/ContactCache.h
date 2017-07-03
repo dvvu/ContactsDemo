@@ -17,7 +17,7 @@
 #pragma mark - cache image for key
 - (void)setImageForKey:(UIImage *)image forKey:(NSString *)key;
 
-#pragma mark - ger image Cache
+#pragma mark - get image Cache
 - (void)getImageForKey:(NSString *)key completionWith:(void(^)(UIImage* image))completion;
 
 @end

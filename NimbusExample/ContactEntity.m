@@ -21,7 +21,6 @@
 - (UIImage *)profileImageWithData:(NSData *)data {
     
     UIImage* profileImage;
-    
     if(data) {
 
         profileImage = [UIImage imageWithData:data];
@@ -66,15 +65,7 @@
             }
             
         }
-        
-        // Get image-> need device
-//        if (contact.imageData) {
-//            UIImage* image = [[UIImage alloc]initWithData:contact.imageData];
-//            
-//            // Cache image for key->idContact. circle for image
-//            [[ContactCache sharedInstance] setImageForKey:[self makeRoundImage:image] forKey: contact.identifier];
-//        }
-//        [[ContactCache sharedInstance] setImageForKey:[self makeRoundImage:[UIImage imageNamed:@"c"]] forKey: contact.identifier];
+    
     }
     
     return self;
@@ -121,16 +112,6 @@
                 [self.phone addObject:phoneNumberFormatted];
             }
         }
-        // Get image-> need to fix
-//        NSData  *imgData = (__bridge NSData *)ABPersonCopyImageData(contact);
-//        
-//        if (imgData) {
-//         
-//            UIImage  *image = [UIImage imageWithData:imgData];
-//            [[ContactCache sharedInstance] setImageForKey:[self makeRoundImage:image] forKey: recordId];
-//        }
-        
-//        [[ContactCache sharedInstance] setImageForKey:[self makeRoundImage:[UIImage imageNamed:@"t"]] forKey: recordId];
     }
     
     return self;
@@ -145,41 +126,6 @@
     return [validatePhoneNumber evaluateWithObject:phoneNumber];
 }
 
-#pragma mark - draw image circle
 
-- (UIImage *)makeRoundImage:(UIImage *)image {
-    
-    //resize image
-    CGRect rect;
-    
-    if( image.size.width > image.size.height) {
-        
-        rect = CGRectMake(0,0,image.size.height,image.size.height);
-    } else {
-        
-        rect = CGRectMake(0,0,image.size.width,image.size.width);
-    }
-    
-    // Begin a new image that will be the new image with the rounded corners
-    UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
-    
-    // Add a clip before drawing anything, in the shape of an rounded rect
-    UIGraphicsBeginImageContext(rect.size);
-    
-    [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:image.size.width/2] addClip];
-    [image drawInRect:rect];
-    
-    // Get the imageV,
-    UIImage* imageNew = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    NSData* imageData = UIImagePNGRepresentation(imageNew);
-    
-    image = [UIImage imageWithData:imageData];
-    
-    UIGraphicsEndImageContext();
-    
-    return image;
-}
 
 @end

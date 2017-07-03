@@ -287,7 +287,7 @@
                         
                         ContactEntity* contactEntity = [[ContactEntity alloc] initWithCNContacts:contact];
                         [_contactEntityList addObject:contactEntity];
-                        [[ContactCache sharedInstance] setImageForKey:[UIImage imageNamed:@"c"] forKey: contact.identifier];
+                        [[ContactCache sharedInstance] setImageForKey:[UIImage imageNamed:@"t"] forKey: contact.identifier];
                     }
                 }
                 
@@ -337,6 +337,8 @@
                 
                 ContactEntity* contactEntity = [[ContactEntity alloc] initWithAddressBook:contact];
                 [_contactEntityList addObject:contactEntity];
+                NSString *recordId = [NSString stringWithFormat:@"%d",(ABRecordGetRecordID(contact))];
+                [[ContactCache sharedInstance] setImageForKey:[UIImage imageNamed:@"t"] forKey: recordId];
             }
             
         }

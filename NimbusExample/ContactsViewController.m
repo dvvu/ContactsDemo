@@ -148,12 +148,19 @@
                 
                 if ([firstChar isEqualToString:groupNameContact[i]]) {
                   
-                    ContactCell* cellObject = [ContactCell objectWithTitle:contactEntity.name image:[UIImage imageNamed:@""]];
-                    
+                    ContactCell* cellObject = [ContactCell objectWithTitle:contactEntity.name image:[UIImage imageNamed:@"c"]];
+                   
                     [[ContactCache sharedInstance] getImageForKey:contactEntity.identifier completionWith:^(UIImage *image) {
+                       
                         if (image) {
                             
-                            cellObject.image = image;
+                            dispatch_async(dispatch_get_main_queue(), ^ {
+                                
+                                 cellObject.image = image;
+                                [self.tableView beginUpdates];
+                                [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects: [_model indexPathForObject:cellObject], nil] withRowAnimation:UITableViewRowAnimationNone];
+                                [self.tableView endUpdates];
+                            });
                         }
                     }];
                     
@@ -218,6 +225,7 @@
 - (UITableViewCell *)tableViewModel:(NITableViewModel *)tableViewModel cellForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath withObject:(id)object {
     
     UITableViewCell* cell = [NICellFactory tableViewModel:tableViewModel cellForTableView:tableView atIndexPath:indexPath withObject:object];
+    
     [cell setSelectionStyle:UITableViewCellSelectionStyleGray];
     return cell;
 }

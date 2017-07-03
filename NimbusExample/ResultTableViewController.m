@@ -39,7 +39,6 @@
         for (ContactEntity* contactEntity in _listContactBook) {
 
             ContactCell* cellObject = [ContactCell objectWithTitle:contactEntity.name image:[UIImage imageNamed:@""]];
-            
             [[ContactCache sharedInstance] getImageForKey:contactEntity.identifier completionWith:^(UIImage *image) {
                 if (image) {
                     
