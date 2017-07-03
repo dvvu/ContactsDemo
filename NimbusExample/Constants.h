@@ -10,7 +10,7 @@
 #define Constants_h
 
 
-#define iOS_VERSION_GREATER_THAN_OR_EQUAL_TO(version) [[[UIDevice currentDevice] systemVersion] floatValue] >= version
+#define iOS_VERSION_GREATER_THAN_OR_EQUAL_TO(version) [[[UIDevice currentDevice] systemVersion] floatValue] <= version
 
 // 10M
 #define MAX_CACHE_SIZE 34*1024*1024
@@ -20,6 +20,7 @@
 
 #pragma mark - contacts Authorizatio Status
 typedef enum {
+    
     ContactAuthorizationStatusDenied = 1,
     ContactAuthorizationStatusRestricted = 2,
 } ContactAuthorizationStatus;
@@ -27,6 +28,7 @@ typedef enum {
 
 #pragma mark - contacts loading Error
 typedef enum {
+    
     ContactLoadingFail = 3
 } ErorrCode;
 

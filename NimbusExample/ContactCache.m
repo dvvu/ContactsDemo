@@ -23,6 +23,7 @@
 #pragma mark - Object info to delete
 
 typedef struct {
+    
     int totalSize;
     int numbuerItemDelete;
 } ItemWillDeleteInfo;
@@ -47,6 +48,7 @@ typedef struct {
 
     self = [super init];
     if (self) {
+        
         _maxCacheSize = MAX_CACHE_SIZE;
         _keyList = [[NSMutableArray alloc]init];
         _contactCache = [[NSCache alloc] init];
@@ -67,13 +69,15 @@ typedef struct {
             [_keyList addObject:key];
             int pixelImage = [self imageSize:image];
             _contactCacheSize += pixelImage;
-            NSLog(@"%d",_contactCacheSize);
+            NSLog(@"%u",_contactCacheSize/1024/1024);
             
             if (pixelImage < _maxCacheSize) {
                 
-                if(_contactCacheSize > _maxCacheSize) {
+                int sizeDelete = _contactCacheSize - _maxCacheSize;
+                
+                if(sizeDelete > 0) {
                     
-                    ItemWillDeleteInfo itemWillDeleteInfo = [self listItemWillDelete:(_contactCacheSize - _maxCacheSize)];
+                    ItemWillDeleteInfo itemWillDeleteInfo = [self listItemWillDelete:sizeDelete];
                     
                     for (int i = 0; i < itemWillDeleteInfo.numbuerItemDelete; i++) {
                         
@@ -105,7 +109,6 @@ typedef struct {
     for (int i = 0; i < _keyList.count; i++) {
     
         if(totalSize < sizeDelete) {
-            
             // Total + size of item at index
             totalSize += [self imageSize:[self getImageForKey:[_keyList objectAtIndex:i]]];
             numbuerItemDelete ++;
@@ -142,6 +145,7 @@ typedef struct {
         if(key) {
             
             if (completion) {
+                
                 UIImage* image = [_contactCache objectForKey:key];
                 completion(image);
             }
@@ -156,9 +160,7 @@ typedef struct {
 }
 
 - (NSUInteger)imageSize:(UIImage*)image {
-   
-    NSData *imageData = UIImageJPEGRepresentation(image, 1); //1 it represents the quality of the image.
-    return [imageData length];
+    return [UIImageJPEGRepresentation(image, 1.0) length];
 }
 
 
@@ -168,34 +170,28 @@ typedef struct {
     
     //resize image
     CGRect rect;
+    int imageWidth = image.size.width;
+    int imageHeight =  image.size.height;
     
-    if( image.size.width > image.size.height) {
+    if (imageWidth > imageHeight) {
         
-        rect = CGRectMake(0,0,image.size.height,image.size.height);
+        rect = CGRectMake(0,0,imageHeight,imageHeight);
     } else {
         
-        rect = CGRectMake(0,0,image.size.width,image.size.width);
+        rect = CGRectMake(0,0,imageWidth,imageWidth);
     }
-    
     // Begin a new image that will be the new image with the rounded corners
-    UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
-    
+//    UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
     // Add a clip before drawing anything, in the shape of an rounded rect
     UIGraphicsBeginImageContext(rect.size);
-    
-    [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:image.size.width/2] addClip];
+    [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:imageWidth/2] addClip];
     [image drawInRect:rect];
     
-    // Get the imageV,
     UIImage* imageNew = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    NSData* imageData = UIImagePNGRepresentation(imageNew);
+//    UIGraphicsEndImageContext();
     
-    image = [UIImage imageWithData:imageData];
-    
-    UIGraphicsEndImageContext();
-    
-    return image;
+    return imageNew;
 }
 @end

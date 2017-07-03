@@ -29,8 +29,8 @@
 }
 
 - (ContactEntity *)initWithCNContacts:(CNContact *)contact {
-    
     self = [super init];
+    
     if (self) {
         
         // Get Name
@@ -51,6 +51,7 @@
         
         // Get ID Contact
         self.identifier = contact.identifier;
+        
         // Get PhoneNumber
         self.phone = [[NSMutableArray alloc] init];
         
@@ -74,9 +75,10 @@
 #pragma mark - getCNABRecordRef
 
 - (ContactEntity *)initWithAddressBook:(ABRecordRef)contact {
-   
     self = [super init];
+ 
     if (self) {
+        
         // Get Name
         NSString* firstName = CFBridgingRelease(ABRecordCopyValue(contact, kABPersonFirstNameProperty));
         NSString* lastName = CFBridgingRelease(ABRecordCopyValue(contact, kABPersonLastNameProperty));

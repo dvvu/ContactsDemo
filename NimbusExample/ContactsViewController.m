@@ -112,6 +112,7 @@
         for (ContactEntity* contactEntity in _contactEntityList) {
             
             BOOL isExisted = false;
+            
             // Replace deleted @" " in string
             NSString* name = [contactEntity.name stringByReplacingOccurrencesOfString:@" " withString:@""];
             NSString* firstChar = [name substringToIndex:1];
@@ -188,6 +189,7 @@
     
     NSString* searchString = searchController.searchBar.text;
     if (searchString.length > 0) {
+        
         // Search by string
         _searchResultTableViewController.tableView.contentInset = UIEdgeInsetsMake(self.tableView.tableHeaderView.frame.size.height+20, 0, 0, 0);
         _searchResultTableViewController.listContactBook = [NSArray arrayWithArray:[self searchResult:searchString]];

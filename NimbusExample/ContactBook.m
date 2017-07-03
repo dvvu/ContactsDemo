@@ -164,6 +164,7 @@
         ABAddressBookRequestAccessWithCompletion(_addressBookRef, ^(bool granted, CFErrorRef error) {
             
             if (granted) {
+                
                 // First time access has been granted, add the contact
                 if (completion) {
                     
@@ -171,6 +172,7 @@
                 }
                 
             } else {
+                
                 // Denied access
                 dispatch_async(dispatch_get_main_queue(), ^ {
                     
@@ -183,6 +185,7 @@
             
         });
     } else if (authorizationStatus == kABAuthorizationStatusAuthorized) {
+        
         // The user has previously given access, add the contact
         if (completion) {
             
@@ -195,6 +198,7 @@
             completion([NSError errorWithDomain:@"" code:ContactAuthorizationStatusDenied userInfo:nil]);
         }
     } else {
+        
         // kABAuthorizationStatusRestricted
         // The user has previously denied access
         if (completion) {
@@ -214,6 +218,7 @@
     
     CNAuthorizationStatus cNAuthorizationStatus = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
     if (cNAuthorizationStatus == CNAuthorizationStatusAuthorized) {
+        
         // The user has previously given access, add the contact
         if (completion) {
             
@@ -224,6 +229,7 @@
         [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
     
             if (granted) {
+                
                 // First time access has been granted, add the contact
                 dispatch_async(dispatch_get_main_queue(), ^ {
                     
@@ -234,6 +240,7 @@
                 });
                 
             } else {
+                
                 // Denied access
                 dispatch_async(dispatch_get_main_queue(), ^ {
                     
@@ -252,6 +259,7 @@
             completion([NSError errorWithDomain:@"" code:ContactAuthorizationStatusDenied userInfo:nil]);
         }
     } else {
+        
          // CNAuthorizationStatusRestricted
          // The user has previously denied access
         if (completion) {
