@@ -17,7 +17,7 @@
 @interface ResultTableViewController () <NITableViewModelDelegate>
 
 @property (nonatomic) dispatch_queue_t resultSearchContactQueue;
-@property (strong, nonatomic) NITableViewModel* models;
+@property (strong, nonatomic) NITableViewModel* model;
 
 @end
 
@@ -38,11 +38,15 @@
         
         for (ContactEntity* contactEntity in _listContactBook) {
 
-            ContactCell* cellObject = [ContactCell objectWithTitle:contactEntity.name image:[UIImage imageNamed:@""]];
-            [[ContactCache sharedInstance] getImageForKey:contactEntity.identifier completionWith:^(UIImage *image) {
+            ContactCell* cellObject = [ContactCell objectWithTitle:contactEntity.name image:[contactEntity profileImageDefault]];
+            [[ContactCache sharedInstance] getImageForKey:contactEntity.identifier completionWith:^(UIImage* image) {
+                
                 if (image) {
-                    
-                    cellObject.image = image;
+                
+                    dispatch_async(dispatch_get_main_queue(), ^ {
+                        
+                        cellObject.image = image;
+                    });
                 }
             }];
             
@@ -50,8 +54,8 @@
             [objects addObject:cellObject];
         }
         
-        _models = [[NITableViewModel alloc] initWithListArray:objects delegate:self];
-        self.tableView.dataSource = _models;
+        _model = [[NITableViewModel alloc] initWithListArray:objects delegate:self];
+        self.tableView.dataSource = _model;
         
         dispatch_async(dispatch_get_main_queue(), ^ {
             
@@ -65,14 +69,14 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    id object = [_models objectAtIndexPath:indexPath];
+    id object = [_model objectAtIndexPath:indexPath];
     ContactEntity* contactEntity = [(ContactCell*) object contact];
     NSLog(@"%@",  contactEntity.phone);
 }
 
 #pragma mark - Nimbus delegate
 
-- (UITableViewCell*)tableViewModel:(NITableViewModel *)tableViewModel cellForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath withObject:(id)object {
+- (UITableViewCell* )tableViewModel:(NITableViewModel *)tableViewModel cellForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath withObject:(id)object {
     
     UITableViewCell* cell = [NICellFactory tableViewModel:tableViewModel cellForTableView:tableView atIndexPath:indexPath withObject:object];
     [cell setSelectionStyle:UITableViewCellSelectionStyleGray];

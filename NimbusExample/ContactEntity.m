@@ -10,6 +10,12 @@
 #import "Constants.h"
 #import "ContactCache.h"
 
+@interface ContactEntity()
+
+@property (nonatomic, strong) NSString* textNameDefault;
+
+@end
+
 @implementation ContactEntity
 
 @synthesize name;
@@ -17,16 +23,6 @@
 @synthesize identifier;
 
 #pragma mark - getCNContact
-
-- (UIImage *)profileImageWithData:(NSData *)data {
-    
-    UIImage* profileImage;
-    if(data) {
-
-        profileImage = [UIImage imageWithData:data];
-    }
-    return profileImage;
-}
 
 - (ContactEntity *)initWithCNContacts:(CNContact *)contact {
     self = [super init];
@@ -36,15 +32,18 @@
         // Get Name
         NSString* firstName = @"";
         NSString* lastName = @"";
+        _textNameDefault = @"";
         
-        if (contact.givenName) {
+        if (contact.givenName.length > 0) {
           
             firstName = contact.givenName;
+            _textNameDefault = [_textNameDefault stringByAppendingString:[firstName substringToIndex:1]];
         }
         
-        if (contact.familyName) {
+        if (contact.familyName.length > 0) {
      
             lastName = contact.familyName;
+            _textNameDefault = [_textNameDefault stringByAppendingString:[lastName substringToIndex:1]];
         }
         
         self.name = [NSString stringWithFormat:@"%@ %@", firstName, lastName];
@@ -74,7 +73,7 @@
 
 #pragma mark - getCNABRecordRef
 
-- (ContactEntity *)initWithAddressBook:(ABRecordRef)contact {
+- (ContactEntity *)initWithAddressBook:(ABRecordRef )contact {
     self = [super init];
  
     if (self) {
@@ -82,21 +81,28 @@
         // Get Name
         NSString* firstName = CFBridgingRelease(ABRecordCopyValue(contact, kABPersonFirstNameProperty));
         NSString* lastName = CFBridgingRelease(ABRecordCopyValue(contact, kABPersonLastNameProperty));
+        _textNameDefault = @"";
         
-        if (!firstName) {
-         
+        if (firstName.length > 0) {
+            
+            _textNameDefault = [_textNameDefault stringByAppendingString:[firstName substringToIndex:1]];
+        } else {
+            
             firstName = @"";
         }
         
-        if (!lastName) {
+        if (lastName.length > 0) {
           
+            _textNameDefault = [_textNameDefault stringByAppendingString:[lastName substringToIndex:1]];
+        } else {
+            
             lastName = @"";
         }
         
         self.name = [NSString stringWithFormat:@"%@ %@", firstName, lastName];
         
         // Get ID Record
-        NSString *recordId = [NSString stringWithFormat:@"%d",(ABRecordGetRecordID(contact))];
+        NSString* recordId = [NSString stringWithFormat:@"%d",(ABRecordGetRecordID(contact))];
         self.identifier = recordId;
         
         ABMultiValueRef phoneNumbers = ABRecordCopyValue(contact, kABPersonPhoneProperty);
@@ -128,6 +134,56 @@
     return [validatePhoneNumber evaluateWithObject:phoneNumber];
 }
 
+#pragma mark - profileImageDefault
 
+- (UIImage *)profileImageDefault {
+    
+    // Size image
+    int imageWidth = 100;
+    int imageHeight =  100;
+    
+    // Rect for image
+    CGRect rect = CGRectMake(0,0,imageHeight,imageHeight);
+    
+    // setup text
+    UIFont* font = [UIFont systemFontOfSize: 60];
+    CGSize textSize = [_textNameDefault sizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:60]}];
+    NSMutableAttributedString* nameAttString = [[NSMutableAttributedString alloc] initWithString:_textNameDefault];
+    NSRange range = NSMakeRange(0, [nameAttString length]);
+    [nameAttString addAttribute:NSFontAttributeName value:font range:range];
+    [nameAttString addAttribute:NSForegroundColorAttributeName value:[UIColor greenColor] range:range];
+    
+    // Create image
+    CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
+    UIColor *fillColor = [UIColor blackColor];
+    
+    // Begin ImageContext Options
+    UIGraphicsBeginImageContextWithOptions(imageSize, YES, 0);
+    
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    [fillColor setFill];
+    CGContextFillRect(context, CGRectMake(0, 0, imageSize.width, imageSize.height));
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+
+    // Begin ImageContext
+    UIGraphicsBeginImageContext(rect.size);
+    
+    //  Draw Circle image
+    [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:imageWidth/2] addClip];
+    [image drawInRect:rect];
+    
+    // Draw text
+    [nameAttString drawInRect:CGRectIntegral(CGRectMake(imageWidth/2 - textSize.width/2, imageHeight/2 - textSize.height/2, imageWidth, imageHeight))];
+    
+    UIImage* profileImageDefault = UIGraphicsGetImageFromCurrentImageContext();
+    
+    // End ImageContext
+    UIGraphicsEndImageContext();
+    
+    // End ImageContext Options
+    UIGraphicsEndImageContext();
+    
+    return profileImageDefault;
+}
 
 @end

@@ -71,7 +71,7 @@
         } else {
            
             [_contactBook getContacts:^(NSMutableArray* contactEntityList, NSError* error) {
-                if(error.code == ContactLoadingFail) {
+                if(error.code == ContactLoadingFailError) {
                   
                     [[[UIAlertView alloc] initWithTitle:@"This Contact is empty." message: @"Please! Check your contacts and try again!" delegate:nil cancelButtonTitle:@"CLOSE" otherButtonTitles: nil, nil] show];
                 } else {
@@ -116,6 +116,7 @@
             // Replace deleted @" " in string
             NSString* name = [contactEntity.name stringByReplacingOccurrencesOfString:@" " withString:@""];
             NSString* firstChar = [name substringToIndex:1];
+        
             if (groupNameContact.count > 0) {
             
                 for (int i = 0; i < groupNameContact.count; i++) {
@@ -149,7 +150,7 @@
                 
                 if ([firstChar isEqualToString:groupNameContact[i]]) {
                   
-                    ContactCell* cellObject = [ContactCell objectWithTitle:contactEntity.name image:[UIImage imageNamed:@"c"]];
+                    ContactCell* cellObject = [ContactCell objectWithTitle:contactEntity.name image:[contactEntity profileImageDefault]];
                    
                     [[ContactCache sharedInstance] getImageForKey:contactEntity.identifier completionWith:^(UIImage *image) {
                        

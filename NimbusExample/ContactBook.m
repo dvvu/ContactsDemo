@@ -106,6 +106,8 @@
     }
 }
 
+#pragma mark -get contact
+
 - (void)getContacts:(void (^)(NSMutableArray *, NSError *))completion {
     
     if (_isSupportiOS9) {
@@ -226,7 +228,7 @@
         }
     } else if (cNAuthorizationStatus == CNAuthorizationStatusNotDetermined) {
         
-        [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError* _Nullable error) {
     
             if (granted) {
                 
@@ -270,24 +272,27 @@
     
 }
 
+#pragma mark - get CNcontacts 
+
 - (void)getContactsWithCNContacts:(void (^)(NSMutableArray *,NSError *))completion {
     
     [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError* _Nullable error) {
         
         if (granted == YES) {
+            
             // Feilds with fetching properties
             NSArray* feild = @[CNContactFamilyNameKey, CNContactGivenNameKey, CNContactPhoneNumbersKey, CNContactImageDataKey];
             CNContactFetchRequest* request = [[CNContactFetchRequest alloc] initWithKeysToFetch:feild];
             request.sortOrder = CNContactSortOrderGivenName;
             NSError* error;
             
-            [_contactStore enumerateContactsWithFetchRequest:request error:&error usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop) {
+            [_contactStore enumerateContactsWithFetchRequest:request error:&error usingBlock:^(CNContact* __nonnull contact, BOOL* __nonnull stop) {
                 
                 if (error) {
                     
                     if (completion) {
                         
-                        completion(nil, [NSError errorWithDomain:@"" code:ContactLoadingFail userInfo:nil]);
+                        completion(nil, [NSError errorWithDomain:@"" code:ContactLoadingFailError userInfo:nil]);
                     }
                 } else {
                     
@@ -295,7 +300,14 @@
                         
                         ContactEntity* contactEntity = [[ContactEntity alloc] initWithCNContacts:contact];
                         [_contactEntityList addObject:contactEntity];
-                        [[ContactCache sharedInstance] setImageForKey:[UIImage imageNamed:@"t"] forKey: contact.identifier];
+                      
+                        // Get image
+                        UIImage* image = [UIImage imageWithData:contact.imageData];
+                        if (image) {
+                            
+                            [[ContactCache sharedInstance] setImageForKey:image forKey: contact.identifier];
+                        }
+                        
                     }
                 }
                 
@@ -314,7 +326,7 @@
     
 }
 
-#pragma mark - ABAddressBookRef
+#pragma mark - get ABAddressBookRef
 
 - (void)getContactsWithAddressBook:(void (^)(NSMutableArray *,NSError *))completion {
     
@@ -331,7 +343,7 @@
             
             if (completion) {
                 
-                completion(nil, [NSError errorWithDomain:@"" code:ContactLoadingFail userInfo:nil]);
+                completion(nil, [NSError errorWithDomain:@"" code:ContactLoadingFailError userInfo:nil]);
             }
         });
         
@@ -340,13 +352,19 @@
         for (CFIndex i = 0; i < CFArrayGetCount(peopleMutable); i++) {
             
             ABRecordRef contact = CFArrayGetValueAtIndex(peopleMutable, i);
-            
             if (contact) {
                 
                 ContactEntity* contactEntity = [[ContactEntity alloc] initWithAddressBook:contact];
                 [_contactEntityList addObject:contactEntity];
-                NSString *recordId = [NSString stringWithFormat:@"%d",(ABRecordGetRecordID(contact))];
-                [[ContactCache sharedInstance] setImageForKey:[UIImage imageNamed:@"t"] forKey: recordId];
+                NSString* recordId = [NSString stringWithFormat:@"%d",(ABRecordGetRecordID(contact))];
+                
+                // Get Image
+                NSData* imgData = (__bridge NSData *)ABPersonCopyImageData(contact);
+                if (imgData) {
+
+                    UIImage* image = [UIImage imageWithData:imgData];
+                    [[ContactCache sharedInstance] setImageForKey:image forKey: recordId];
+                }
             }
             
         }

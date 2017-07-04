@@ -75,26 +75,28 @@ typedef struct {
             // Add size to check condition
             _contactCacheSize += pixelImage;
             
-            NSLog(@"%u",_contactCacheSize/1024/1024);
+            NSLog(@"%u",_contactCacheSize);
             
             // size of image < valid memory?
             if (pixelImage < _maxCacheSize) {
                 
-//                int sizeDelete = _contactCacheSize - _maxCacheSize;
-//                
-//                if (sizeDelete > 0) {
-//                    
-//                    ItemsWillDelete itemsWillDelete = [self listItemWillDelete:sizeDelete];
-//                    
-//                    for (int i = 0; i < itemsWillDelete.numbuerItemDelete; i++) {
-//                        
-//                        [_contactCache removeObjectForKey:[_keyList objectAtIndex:i]];
-//                    }
-//                    _contactCacheSize -= itemsWillDelete.totalSize;
-//                }
-//          
-//                [_contactCache setObject:[self makeRoundImage:image] forKey:key];
-                [self writeToDirectory:[self makeRoundImage:image] forkey:key];
+                int sizeDelete = _contactCacheSize - _maxCacheSize;
+                
+                if (sizeDelete > 0) {
+                    
+                    ItemsWillDelete itemsWillDelete = [self listItemWillDelete:sizeDelete];
+                    
+                    for (int i = 0; i < itemsWillDelete.numbuerItemDelete; i++) {
+                       
+//                        [self writeToDirectory:[_contactCache objectForKey:[_keyList objectAtIndex:i]] forkey:[_keyList objectAtIndex:i]];
+                        [_contactCache removeObjectForKey:[_keyList objectAtIndex:i]];
+                        
+                    }
+                    _contactCacheSize -= itemsWillDelete.totalSize;
+                }
+          
+                [_contactCache setObject:[self makeRoundImage:image] forKey:key];
+//                [self writeToDirectory:[self makeRoundImage:image] forkey:key];
                 
             } else if (pixelImage == _maxCacheSize) {
             
@@ -132,7 +134,7 @@ typedef struct {
     return itemWillDelete;
 }
 
-#pragma mark - get to cache
+#pragma mark - get to image from cache or dir
 
 - (void)getImageForKey:(NSString *)key completionWith:(void(^)(UIImage* image))completion {
     
@@ -164,7 +166,9 @@ typedef struct {
     });
 }
 
-- (NSUInteger)imageSize:(UIImage*)image {
+#pragma mark - get image size
+
+- (NSUInteger )imageSize:(UIImage *)image {
     
     return [UIImageJPEGRepresentation(image, 1.0) length];
 }
@@ -174,6 +178,7 @@ typedef struct {
 - (void)writeToCache:(UIImage *)image forkey:(NSString *)key {
     
     if (image && key) {
+        
         [_contactCache setObject:image forKey:key];
     }
 }
@@ -184,26 +189,26 @@ typedef struct {
     
     if (image != nil) {
         
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString* documentsDirectory = [paths objectAtIndex:0];
         NSString* path = [documentsDirectory stringByAppendingPathComponent:key];
-        NSString* filePath = [path stringByAppendingPathComponent:@"image.png"];
+        NSString* imagePath = [path stringByAppendingPathComponent:@"image.png"];
        
         BOOL isDirectory;
         NSFileManager* fileManager = [NSFileManager defaultManager];
         
-        if(![fileManager fileExistsAtPath:path isDirectory:&isDirectory]) {
+        if(![fileManager fileExistsAtPath:imagePath isDirectory:&isDirectory]) {
             
             NSError* error = nil;
-            [fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error];
+            [fileManager createDirectoryAtPath:imagePath withIntermediateDirectories:YES attributes:nil error:&error];
            
             if(error) {
                
                 NSLog(@"folder creation failed. %@",[error localizedDescription]);
             } else {
                 
-//                NSData* imageData = UIImagePNGRepresentation(image);
-                [UIImagePNGRepresentation(image) writeToFile:filePath atomically:YES];
+                NSData* imageData = UIImagePNGRepresentation(image);
+                [imageData writeToFile:imagePath atomically:YES];
                 
             }
             
@@ -233,11 +238,11 @@ typedef struct {
         NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString* documentsDirectory = [paths objectAtIndex:0];
         NSString* path = [documentsDirectory stringByAppendingPathComponent:key];
-        NSString* filePath = [path stringByAppendingPathComponent:@"image.png"];
+        NSString* imagePath = [path stringByAppendingPathComponent:@"image.png"];
         
-        if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:imagePath]) {
          
-            UIImage* image = [UIImage imageWithContentsOfFile:filePath];
+            UIImage* image = [UIImage imageWithContentsOfFile:imagePath];
             return image;
         }
     }
@@ -249,31 +254,64 @@ typedef struct {
 
 - (UIImage *)makeRoundImage:(UIImage *)image {
     
-    //resize image
-    CGRect rect;
-    int imageWidth = image.size.width;
-    int imageHeight =  image.size.height;
+    // Resize image
+    image = [self resizeImage:image];
+    CGFloat imageWidth = image.size.width;
+    CGRect rect = CGRectMake(0, 0, imageWidth, imageWidth);
     
-    if (imageWidth > imageHeight) {
-        
-        rect = CGRectMake(0,0,imageHeight,imageHeight);
-    } else {
-        
-        rect = CGRectMake(0,0,imageWidth,imageWidth);
-    }
-    
-    // Begin a new image that will be the new image with the rounded corners
-    UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
-    
+    // Begin ImageContext
+    UIGraphicsBeginImageContext(rect.size);
+   
     // Add a clip before drawing anything, in the shape of an rounded rect
     [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:imageWidth/2] addClip];
     [image drawInRect:rect];
-    UIImage* imageNew = UIGraphicsGetImageFromCurrentImageContext();
+    UIImage* imageCircle = UIGraphicsGetImageFromCurrentImageContext();
     
-    // End
+    // End ImageContext
     UIGraphicsEndImageContext();
     
-    return imageNew;
+    return imageCircle;
+}
+
+#pragma mark - resize image
+
+-(UIImage *)resizeImage:(UIImage *)image {
+    
+    CGAffineTransform scaleTransform;
+    CGPoint origin;
+    CGFloat edgeSquare = 100;
+    CGFloat imageWidth = image.size.width;
+    CGFloat imageHeight = image.size.height;
+    
+    if (imageWidth > imageHeight) {
+        
+        CGFloat scaleRatio = edgeSquare / imageHeight;
+        scaleTransform = CGAffineTransformMakeScale(scaleRatio, scaleRatio);
+        origin = CGPointMake(-(imageWidth - imageHeight) / 2, 0);
+    } else {
+        
+        CGFloat scaleRatio = edgeSquare / imageWidth;
+        scaleTransform = CGAffineTransformMakeScale(scaleRatio, scaleRatio);
+        origin = CGPointMake(0, -(imageHeight - imageWidth) / 2);
+    }
+    
+    CGSize size = CGSizeMake(edgeSquare, edgeSquare);
+    
+    // Begin ImageContext
+    UIGraphicsBeginImageContext(size);
+    
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextConcatCTM(context, scaleTransform);
+ 
+    NSLog(@"size: %f:%f", imageWidth, imageHeight);
+    NSLog(@"%f:%f", origin.x, origin.y);
+    [image drawAtPoint:origin];
+    
+    image = UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    
+    return image;
 }
 
 @end
