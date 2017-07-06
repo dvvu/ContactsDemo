@@ -105,7 +105,7 @@
         NSString* recordId = [NSString stringWithFormat:@"%d",(ABRecordGetRecordID(contact))];
         self.identifier = recordId;
         
-        ABMultiValueRef phoneNumbers = ABRecordCopyValue(contact, kABPersonPhoneProperty);
+        ABMultiValueRef phoneNumbers = (__bridge ABMultiValueRef)(CFBridgingRelease(ABRecordCopyValue(contact, kABPersonPhoneProperty)));
         CFIndex numberOfPhoneNumbers = ABMultiValueGetCount(phoneNumbers);
         
         self.phone = [[NSMutableArray alloc] init];
@@ -146,8 +146,8 @@
     CGRect rect = CGRectMake(0,0,imageHeight,imageHeight);
     
     // setup text
-    UIFont* font = [UIFont systemFontOfSize: 60];
-    CGSize textSize = [_textNameDefault sizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:60]}];
+    UIFont* font = [UIFont systemFontOfSize: 50];
+    CGSize textSize = [_textNameDefault sizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:50]}];
     NSMutableAttributedString* nameAttString = [[NSMutableAttributedString alloc] initWithString:_textNameDefault];
     NSRange range = NSMakeRange(0, [nameAttString length]);
     [nameAttString addAttribute:NSFontAttributeName value:font range:range];

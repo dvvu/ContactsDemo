@@ -20,14 +20,6 @@
 
 @implementation ContactCache
 
-#pragma mark - Object info to delete
-
-typedef struct {
-    
-    int totalSize;
-    int numbuerItemDelete;
-} ItemsWillDelete;
-
 #pragma mark - singleton
 
 + (instancetype)sharedInstance {
@@ -65,12 +57,13 @@ typedef struct {
     if (image && key) {
         
         dispatch_async(_cacheImageQueue, ^ {
-        
+               
             // Add key into keyList
             [_keyList addObject:key];
             
             // Get size of image
-            int pixelImage = [self imageSize:image];
+            UIImage* circleImage = [self makeRoundImage:image];
+            CGFloat pixelImage = [self imageSize:circleImage];
             
             // Add size to check condition
             _contactCacheSize += pixelImage;
@@ -79,59 +72,26 @@ typedef struct {
             
             // size of image < valid memory?
             if (pixelImage < _maxCacheSize) {
-                
-                int sizeDelete = _contactCacheSize - _maxCacheSize;
-                
-                if (sizeDelete > 0) {
+              
+                int index = 0;
+                while (_contactCacheSize > _maxCacheSize) {
                     
-                    ItemsWillDelete itemsWillDelete = [self listItemWillDelete:sizeDelete];
-                    
-                    for (int i = 0; i < itemsWillDelete.numbuerItemDelete; i++) {
-                       
-//                        [self writeToDirectory:[_contactCache objectForKey:[_keyList objectAtIndex:i]] forkey:[_keyList objectAtIndex:i]];
-                        [_contactCache removeObjectForKey:[_keyList objectAtIndex:i]];
-                        
-                    }
-                    _contactCacheSize -= itemsWillDelete.totalSize;
+                    CGFloat size =  [self imageSize:[_contactCache objectForKey:[_keyList objectAtIndex:index]]];
+                    [_contactCache removeObjectForKey:[_keyList objectAtIndex:index]];
+                    _contactCacheSize -= size;
+                    index++;
                 }
-          
-                [_contactCache setObject:[self makeRoundImage:image] forKey:key];
-//                [self writeToDirectory:[self makeRoundImage:image] forkey:key];
+                
+                [_contactCache setObject:circleImage forKey:key];
+                //[self writeToDirectory:[self makeRoundImage:image] forkey:key];
                 
             } else if (pixelImage == _maxCacheSize) {
-            
+                
                 [_contactCache removeAllObjects];
-                [_contactCache setObject:[self makeRoundImage:image] forKey:key];
+                [_contactCache setObject:circleImage forKey:key];
             }
         });
     }
-}
-
-#pragma mark - delete list item
-
-- (ItemsWillDelete)listItemWillDelete:(NSUInteger)sizeDelete {
-    
-    int totalSize = 0;
-    int numbuerItemDelete = 0;
-    
-    for (int i = 0; i < _keyList.count; i++) {
-    
-        if(totalSize < sizeDelete) {
-            
-            // Total + size of item at index
-            totalSize += [self imageSize:[_contactCache objectForKey:[_keyList objectAtIndex:i]]];
-            numbuerItemDelete ++;
-            
-        } else {
-            
-            break;
-        }
-    }
-    
-    ItemsWillDelete itemWillDelete;
-    itemWillDelete.numbuerItemDelete = numbuerItemDelete;
-    itemWillDelete.totalSize = totalSize;
-    return itemWillDelete;
 }
 
 #pragma mark - get to image from cache or dir
@@ -168,9 +128,8 @@ typedef struct {
 
 #pragma mark - get image size
 
-- (NSUInteger )imageSize:(UIImage *)image {
-    
-    return [UIImageJPEGRepresentation(image, 1.0) length];
+- (CGFloat)imageSize:(UIImage *)image {
+    return image.size.height*image.size.width*3*[UIScreen mainScreen].scale;
 }
 
 #pragma mark - write image into cache
@@ -209,7 +168,6 @@ typedef struct {
                 
                 NSData* imageData = UIImagePNGRepresentation(image);
                 [imageData writeToFile:imagePath atomically:YES];
-                
             }
             
         }
@@ -302,16 +260,25 @@ typedef struct {
     
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextConcatCTM(context, scaleTransform);
- 
-    NSLog(@"size: %f:%f", imageWidth, imageHeight);
-    NSLog(@"%f:%f", origin.x, origin.y);
     [image drawAtPoint:origin];
-    
+   
     image = UIGraphicsGetImageFromCurrentImageContext();
-    
     UIGraphicsEndImageContext();
     
     return image;
+}
+
+#pragma mark - check key exist
+
+- (BOOL)keyExisted:(NSString *)key {
+   
+    for (int i = 0; i < _keyList.count; i++) {
+        
+        if([_keyList[i] isEqualToString:key]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 @end

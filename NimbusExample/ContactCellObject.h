@@ -1,16 +1,15 @@
 //
-//  ContactCell.h
+//  ContactCellObject.h
 //  NimbusExample
 //
-//  Created by Doan Van Vu on 6/27/17.
+//  Created by Doan Van Vu on 7/5/17.
 //  Copyright © 2017 Vu Doan. All rights reserved.
 //
 
 #import "NICellCatalog.h"
 
-@interface ContactCell : NITitleCellObject
+@interface ContactCellObject : NITitleCellObject
 
 @property (nonatomic, weak) id contact;
 
 @end
-

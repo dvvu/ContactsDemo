@@ -7,10 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EA0EF0581F0C7E7600A40A58 /* ContactCellObject.m in Sources */ = {isa = PBXBuildFile; fileRef = EA0EF0571F0C7E7600A40A58 /* ContactCellObject.m */; };
+		EA28FEB71F0DE981005345EE /* ContactTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EA28FEB51F0DE981005345EE /* ContactTableViewCell.m */; };
 		EA2B009B1EFCEF66002344DF /* ContactBook.m in Sources */ = {isa = PBXBuildFile; fileRef = EA2B009A1EFCEF66002344DF /* ContactBook.m */; };
 		EA30668B1F00A1580087F78B /* ResultTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EA30668A1F00A1580087F78B /* ResultTableViewController.m */; };
 		EA30668D1F00C8050087F78B /* Contacts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA30668C1F00C8050087F78B /* Contacts.framework */; };
-		EA33726B1F020B2F00ECC471 /* ContactCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EA33726A1F020B2F00ECC471 /* ContactCell.m */; };
 		EABC807F1F04E21D0061779F /* ContactCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EABC807E1F04E21D0061779F /* ContactCache.m */; };
 		EAC422AC1EF91F7600FC3DA9 /* ContactsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC422AB1EF91F7600FC3DA9 /* ContactsViewController.m */; };
 		EAE176931F03B07B007B76A5 /* ContactEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = EAE176921F03B07B007B76A5 /* ContactEntity.m */; };
@@ -72,12 +73,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EA0EF0561F0C7E7600A40A58 /* ContactCellObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactCellObject.h; sourceTree = "<group>"; };
+		EA0EF0571F0C7E7600A40A58 /* ContactCellObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactCellObject.m; sourceTree = "<group>"; };
+		EA28FEB41F0DE981005345EE /* ContactTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactTableViewCell.h; sourceTree = "<group>"; };
+		EA28FEB51F0DE981005345EE /* ContactTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactTableViewCell.m; sourceTree = "<group>"; };
 		EA2B009A1EFCEF66002344DF /* ContactBook.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactBook.m; sourceTree = "<group>"; };
 		EA3066891F00A1580087F78B /* ResultTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResultTableViewController.h; sourceTree = "<group>"; };
 		EA30668A1F00A1580087F78B /* ResultTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResultTableViewController.m; sourceTree = "<group>"; };
 		EA30668C1F00C8050087F78B /* Contacts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Contacts.framework; path = System/Library/Frameworks/Contacts.framework; sourceTree = SDKROOT; };
-		EA3372691F020B2F00ECC471 /* ContactCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactCell.h; sourceTree = "<group>"; };
-		EA33726A1F020B2F00ECC471 /* ContactCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactCell.m; sourceTree = "<group>"; };
 		EABC807D1F04E21D0061779F /* ContactCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactCache.h; sourceTree = "<group>"; };
 		EABC807E1F04E21D0061779F /* ContactCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactCache.m; sourceTree = "<group>"; };
 		EAC422AA1EF91F7600FC3DA9 /* ContactsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactsViewController.h; sourceTree = "<group>"; };
@@ -226,8 +229,10 @@
 		EAE176951F03B26A007B76A5 /* ContactCells */ = {
 			isa = PBXGroup;
 			children = (
-				EA3372691F020B2F00ECC471 /* ContactCell.h */,
-				EA33726A1F020B2F00ECC471 /* ContactCell.m */,
+				EA28FEB41F0DE981005345EE /* ContactTableViewCell.h */,
+				EA28FEB51F0DE981005345EE /* ContactTableViewCell.m */,
+				EA0EF0561F0C7E7600A40A58 /* ContactCellObject.h */,
+				EA0EF0571F0C7E7600A40A58 /* ContactCellObject.m */,
 			);
 			name = ContactCells;
 			sourceTree = "<group>";
@@ -544,6 +549,7 @@
 				F8E82C5C1EF2653900A4CB95 /* NIFormCellCatalog.m in Sources */,
 				EA30668B1F00A1580087F78B /* ResultTableViewController.m in Sources */,
 				F8E82C301EF2651900A4CB95 /* NICommonMetrics.m in Sources */,
+				EA0EF0581F0C7E7600A40A58 /* ContactCellObject.m in Sources */,
 				F8E82C391EF2651900A4CB95 /* NINonRetainingCollections.m in Sources */,
 				F8E82BC61EF263F000A4CB95 /* AppDelegate.m in Sources */,
 				EA2B009B1EFCEF66002344DF /* ContactBook.m in Sources */,
@@ -566,8 +572,8 @@
 				F8E82C3D1EF2651900A4CB95 /* NISDKAvailability.m in Sources */,
 				F8E82C3C1EF2651900A4CB95 /* NIRuntimeClassModifications.m in Sources */,
 				EAE176931F03B07B007B76A5 /* ContactEntity.m in Sources */,
-				EA33726B1F020B2F00ECC471 /* ContactCell.m in Sources */,
 				F8E82C321EF2651900A4CB95 /* NIDeviceOrientation.m in Sources */,
+				EA28FEB71F0DE981005345EE /* ContactTableViewCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

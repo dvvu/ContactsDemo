@@ -50,12 +50,13 @@
         _isSupportiOS9 = iOS_VERSION_GREATER_THAN_OR_EQUAL_TO(9.0);
         _contactEntity = [ContactEntity new];
         _contactEntityList = [[NSMutableArray alloc] init];
+        _loaderContactQueue = dispatch_queue_create("LOADER_CONTACT_QUEUE", DISPATCH_QUEUE_SERIAL);
+      
         if (_isSupportiOS9) {
             
             _contactStore = [[CNContactStore alloc] init];
         } else {
             
-            _loaderContactQueue = dispatch_queue_create("LOADER_CONTACT_QUEUE", DISPATCH_QUEUE_SERIAL);
             _addressBookRef = ABAddressBookCreateWithOptions(NULL, NULL);
         }
     }
@@ -110,29 +111,29 @@
 
 - (void)getContacts:(void (^)(NSMutableArray *, NSError *))completion {
     
-    if (_isSupportiOS9) {
+    dispatch_async(_loaderContactQueue,^{
+   
+        if (_isSupportiOS9) {
         
-        [self getContactsWithCNContacts:^(NSMutableArray* contactList, NSError* error) {
-            
-            if (error) {
+            [self getContactsWithCNContacts:^(NSMutableArray* contactList, NSError* error) {
                 
-                if (completion) {
+                if (error) {
                     
-                    completion(nil, error);
+                    if (completion) {
+                        
+                        completion(nil, error);
+                    }
+                } else {
+                    
+                    if (completion) {
+                        
+                        completion(contactList, nil);
+                    }
                 }
-            } else {
                 
-                if (completion) {
-                    
-                    completion(contactList, nil);
-                }
-            }
-            
-        }];
-    } else {
+            }];
+        } else {
         
-        dispatch_async(_loaderContactQueue,^{
-            
             [self getContactsWithAddressBook:^(NSMutableArray* contactEntityList, NSError* error) {
                
                 if (error) {
@@ -151,9 +152,8 @@
                 }
                 
             }];
-        });
-        
-    }
+        }
+   });
 }
 
 #pragma mark - get permisstionContacts
@@ -302,10 +302,10 @@
                         [_contactEntityList addObject:contactEntity];
                       
                         // Get image
-                        UIImage* image = [UIImage imageWithData:contact.imageData];
+                        UIImage* image = [UIImage imageNamed:@"t"];//[UIImage imageWithData:contact.imageData];
                         if (image) {
                             
-                            [[ContactCache sharedInstance] setImageForKey:image forKey: contact.identifier];
+                            [[ContactCache sharedInstance] setImageForKey:image forKey:contact.identifier];
                         }
                         
                     }
