@@ -30,8 +30,6 @@
 
 @implementation NICellFactory
 
-
-
 - (id)init {
   if ((self = [super init])) {
     _objectToCellMap = [[NSMutableDictionary alloc] init];
@@ -195,7 +193,6 @@
 
 
 @implementation NICellObject
-
 
 
 - (id)initWithCellClass:(Class)cellClass userInfo:(id)userInfo {

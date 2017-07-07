@@ -7,17 +7,19 @@
 //
 
 #import "ResultTableViewController.h"
+#import "ContactTableViewCell.h"
 #import "NimbusModels.h"
-#import "ContactCell.h"
+#import "ContactCellObject.h"
 #import "ContactBook.h"
 #import "NimbusCore.h"
 #import "ContactEntity.h"
 #import "ContactCache.h"
 
-@interface ResultTableViewController () <NITableViewModelDelegate>
+@interface ResultTableViewController ()
 
 @property (nonatomic) dispatch_queue_t resultSearchContactQueue;
-@property (strong, nonatomic) NITableViewModel* models;
+@property (strong, nonatomic) NITableViewModel* model;
+@property (nonatomic, strong) NICellFactory* cellFactory;
 
 @end
 
@@ -27,36 +29,45 @@
     [super viewDidLoad];
     
     _resultSearchContactQueue = dispatch_queue_create("RESULT_SEARCH_CONTACT_QUEUE", DISPATCH_QUEUE_SERIAL);
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+    self.tableView.contentInset = UIEdgeInsetsMake(10, 0, 0, 0);
+    _cellFactory = [[NICellFactory alloc] init];
+    [_cellFactory mapObjectClass:[ContactCellObject class] toCellClass:[ContactTableViewCell class]];
+
+    // Dimis keyboard when drag
+    self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
+}
+
+-(void)viewWillAppear:(BOOL)animated {
+    
     [self setupTableView];
 }
+
+#pragma mark - setupView
 
 - (void)setupTableView {
     
     dispatch_async(_resultSearchContactQueue, ^ {
         
-        NSMutableArray* objects = [NSMutableArray array];
-        
-        for (ContactEntity* contactEntity in _listContactBook) {
-
-            ContactCell* cellObject = [ContactCell objectWithTitle:contactEntity.name image:[UIImage imageNamed:@""]];
-            [[ContactCache sharedInstance] getImageForKey:contactEntity.identifier completionWith:^(UIImage *image) {
-                if (image) {
-                    
-                    cellObject.image = image;
-                }
-            }];
+        if(_listContactBook) {
             
-            cellObject.contact = contactEntity;
-            [objects addObject:cellObject];
+            NSMutableArray* objects = [NSMutableArray array];
+            
+            for (ContactEntity* contactEntity in _listContactBook) {
+                
+                ContactCellObject* cellObject = [ContactCellObject objectWithTitle:contactEntity.name image:[contactEntity profileImageDefault]];
+                cellObject.contact = contactEntity;
+                [objects addObject:cellObject];
+            }
+            
+            _model = [[NITableViewModel alloc] initWithListArray:objects delegate:_cellFactory];
+            self.tableView.dataSource = _model;
+            
+            dispatch_async(dispatch_get_main_queue(), ^ {
+            
+                [self.tableView reloadData];
+            });
         }
-        
-        _models = [[NITableViewModel alloc] initWithListArray:objects delegate:self];
-        self.tableView.dataSource = _models;
-        
-        dispatch_async(dispatch_get_main_queue(), ^ {
-            
-            [self.tableView reloadData];
-        });
     });
     
 }
@@ -65,18 +76,19 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    id object = [_models objectAtIndexPath:indexPath];
-    ContactEntity* contactEntity = [(ContactCell*) object contact];
+    id object = [_model objectAtIndexPath:indexPath];
+    ContactEntity* contactEntity = [(ContactCellObject *)object contact];
     NSLog(@"%@",  contactEntity.phone);
+    
+    [UIView animateWithDuration:0.2 animations: ^ {
+        
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    }];
 }
 
-#pragma mark - Nimbus delegate
-
-- (UITableViewCell*)tableViewModel:(NITableViewModel *)tableViewModel cellForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath withObject:(id)object {
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    UITableViewCell* cell = [NICellFactory tableViewModel:tableViewModel cellForTableView:tableView atIndexPath:indexPath withObject:object];
-    [cell setSelectionStyle:UITableViewCellSelectionStyleGray];
-    return cell;
+    return 50;
 }
 
 @end

@@ -38,8 +38,11 @@
         
         sharedInstance = [[ContactBook alloc] init];
     });
+    
     return sharedInstance;
 }
+
+#pragma mark - init
 
 - (instancetype)init {
     
@@ -50,12 +53,13 @@
         _isSupportiOS9 = iOS_VERSION_GREATER_THAN_OR_EQUAL_TO(9.0);
         _contactEntity = [ContactEntity new];
         _contactEntityList = [[NSMutableArray alloc] init];
+        _loaderContactQueue = dispatch_queue_create("LOADER_CONTACT_QUEUE", DISPATCH_QUEUE_SERIAL);
+      
         if (_isSupportiOS9) {
             
             _contactStore = [[CNContactStore alloc] init];
         } else {
             
-            _loaderContactQueue = dispatch_queue_create("LOADER_CONTACT_QUEUE", DISPATCH_QUEUE_SERIAL);
             _addressBookRef = ABAddressBookCreateWithOptions(NULL, NULL);
         }
     }
@@ -106,31 +110,33 @@
     }
 }
 
+#pragma mark -get contact
+
 - (void)getContacts:(void (^)(NSMutableArray *, NSError *))completion {
     
-    if (_isSupportiOS9) {
+    dispatch_async(_loaderContactQueue,^{
+   
+        if (_isSupportiOS9) {
         
-        [self getContactsWithCNContacts:^(NSMutableArray* contactList, NSError* error) {
-            
-            if (error) {
+            [self getContactsWithCNContacts:^(NSMutableArray* contactList, NSError* error) {
                 
-                if (completion) {
+                if (error) {
                     
-                    completion(nil, error);
+                    if (completion) {
+                        
+                        completion(nil, error);
+                    }
+                } else {
+                    
+                    if (completion) {
+                        
+                        completion(contactList, nil);
+                    }
                 }
-            } else {
                 
-                if (completion) {
-                    
-                    completion(contactList, nil);
-                }
-            }
-            
-        }];
-    } else {
+            }];
+        } else {
         
-        dispatch_async(_loaderContactQueue,^{
-            
             [self getContactsWithAddressBook:^(NSMutableArray* contactEntityList, NSError* error) {
                
                 if (error) {
@@ -149,9 +155,8 @@
                 }
                 
             }];
-        });
-        
-    }
+        }
+   });
 }
 
 #pragma mark - get permisstionContacts
@@ -159,6 +164,7 @@
 - (void)getPermissionUseAddressBook:(void (^)(NSError *))completion {
     
     ABAuthorizationStatus authorizationStatus =  ABAddressBookGetAuthorizationStatus();
+    
     if (authorizationStatus == kABAuthorizationStatusNotDetermined) {
         
         ABAddressBookRequestAccessWithCompletion(_addressBookRef, ^(bool granted, CFErrorRef error) {
@@ -217,6 +223,7 @@
 - (void)getPermissionUseContacts:(void (^)(NSError *))completion {
     
     CNAuthorizationStatus cNAuthorizationStatus = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
+    
     if (cNAuthorizationStatus == CNAuthorizationStatusAuthorized) {
         
         // The user has previously given access, add the contact
@@ -226,7 +233,7 @@
         }
     } else if (cNAuthorizationStatus == CNAuthorizationStatusNotDetermined) {
         
-        [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError* _Nullable error) {
     
             if (granted) {
                 
@@ -270,24 +277,27 @@
     
 }
 
+#pragma mark - get CNcontacts 
+
 - (void)getContactsWithCNContacts:(void (^)(NSMutableArray *,NSError *))completion {
     
     [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError* _Nullable error) {
         
         if (granted == YES) {
+            
             // Feilds with fetching properties
             NSArray* feild = @[CNContactFamilyNameKey, CNContactGivenNameKey, CNContactPhoneNumbersKey, CNContactImageDataKey];
             CNContactFetchRequest* request = [[CNContactFetchRequest alloc] initWithKeysToFetch:feild];
             request.sortOrder = CNContactSortOrderGivenName;
             NSError* error;
             
-            [_contactStore enumerateContactsWithFetchRequest:request error:&error usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop) {
+            [_contactStore enumerateContactsWithFetchRequest:request error:&error usingBlock:^(CNContact* __nonnull contact, BOOL* __nonnull stop) {
                 
                 if (error) {
                     
                     if (completion) {
                         
-                        completion(nil, [NSError errorWithDomain:@"" code:ContactLoadingFail userInfo:nil]);
+                        completion(nil, [NSError errorWithDomain:@"" code:ContactLoadingFailError userInfo:nil]);
                     }
                 } else {
                     
@@ -295,7 +305,14 @@
                         
                         ContactEntity* contactEntity = [[ContactEntity alloc] initWithCNContacts:contact];
                         [_contactEntityList addObject:contactEntity];
-                        [[ContactCache sharedInstance] setImageForKey:[UIImage imageNamed:@"t"] forKey: contact.identifier];
+                      
+                        // Get image
+                        UIImage* image = [UIImage imageNamed:@"d"];//[UIImage imageWithData:contact.imageData];
+                        if (image) {
+                            
+                            [[ContactCache sharedInstance] setImageForKey:image forKey:contact.identifier];
+                        }
+                        
                     }
                 }
                 
@@ -314,7 +331,7 @@
     
 }
 
-#pragma mark - ABAddressBookRef
+#pragma mark - get ABAddressBookRef
 
 - (void)getContactsWithAddressBook:(void (^)(NSMutableArray *,NSError *))completion {
     
@@ -331,7 +348,7 @@
             
             if (completion) {
                 
-                completion(nil, [NSError errorWithDomain:@"" code:ContactLoadingFail userInfo:nil]);
+                completion(nil, [NSError errorWithDomain:@"" code:ContactLoadingFailError userInfo:nil]);
             }
         });
         
@@ -345,8 +362,17 @@
                 
                 ContactEntity* contactEntity = [[ContactEntity alloc] initWithAddressBook:contact];
                 [_contactEntityList addObject:contactEntity];
-                NSString *recordId = [NSString stringWithFormat:@"%d",(ABRecordGetRecordID(contact))];
-                [[ContactCache sharedInstance] setImageForKey:[UIImage imageNamed:@"t"] forKey: recordId];
+                NSString* recordId = [NSString stringWithFormat:@"%d",(ABRecordGetRecordID(contact))];
+                
+                // Get Image
+                NSData* imgData = (__bridge NSData *)ABPersonCopyImageData(contact);
+                
+                if (imgData) {
+
+                    UIImage* image = [UIImage imageWithData:imgData];
+                    [[ContactCache sharedInstance] setImageForKey:image forKey: recordId];
+                }
+                CFRelease((__bridge CFTypeRef)(imgData));
             }
             
         }

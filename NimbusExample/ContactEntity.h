@@ -19,13 +19,13 @@
 @property (nonatomic, strong) NSString* identifier;
 @property (nonatomic, strong) NSString* name;
 
-#pragma mark - get image
-- (UIImage*)profileImageWithData:(NSData* )data;
-
 #pragma mark - intit CNContact
 - (ContactEntity *)initWithCNContacts:(CNContact* )contact;
 
 #pragma mark - get ABAddressBookRef
 - (ContactEntity *)initWithAddressBook:(ABRecordRef)contact;
+
+#pragma mark - get default image
+- (UIImage *)profileImageDefault;
 
 @end

@@ -11,7 +11,7 @@
 
 @interface ContactCache()
 
-@property (nonatomic, strong) NSCache *contactCache;
+@property (nonatomic, strong) NSCache* contactCache;
 @property (nonatomic) NSUInteger contactCacheSize;
 @property (nonatomic, strong) NSMutableArray<NSString*> *keyList;
 @property (nonatomic) NSUInteger maxCacheSize;
@@ -20,25 +20,18 @@
 
 @implementation ContactCache
 
-#pragma mark - Object info to delete
-
-typedef struct {
-    
-    int totalSize;
-    int numbuerItemDelete;
-} ItemWillDeleteInfo;
-
 #pragma mark - singleton
 
 + (instancetype)sharedInstance {
     
-    static ContactCache *sharedInstance;
+    static ContactCache* sharedInstance;
     static dispatch_once_t onceToken;
     
     dispatch_once(&onceToken, ^ {
         
         sharedInstance = [[ContactCache alloc] init];
     });
+    
     return sharedInstance;
 }
 
@@ -65,89 +58,64 @@ typedef struct {
     if (image && key) {
         
         dispatch_async(_cacheImageQueue, ^ {
-        
+               
+            // Add key into keyList
             [_keyList addObject:key];
-            int pixelImage = [self imageSize:image];
-            _contactCacheSize += pixelImage;
-            NSLog(@"%u",_contactCacheSize/1024/1024);
             
+            // Get size of image
+            UIImage* circleImage = [self makeRoundImage:image];
+            CGFloat pixelImage = [self imageSize:circleImage];
+            
+            // Add size to check condition
+            _contactCacheSize += pixelImage;
+            
+            NSLog(@"%lu",(unsigned long)_contactCacheSize);
+            
+            // size of image < valid memory?
             if (pixelImage < _maxCacheSize) {
-                
-                int sizeDelete = _contactCacheSize - _maxCacheSize;
-                
-                if(sizeDelete > 0) {
+              
+                int index = 0;
+                while (_contactCacheSize > _maxCacheSize) {
                     
-                    ItemWillDeleteInfo itemWillDeleteInfo = [self listItemWillDelete:sizeDelete];
-                    
-                    for (int i = 0; i < itemWillDeleteInfo.numbuerItemDelete; i++) {
-                        
-                        [_contactCache removeObjectForKey:[_keyList objectAtIndex:i]];
-                    }
-                    _contactCacheSize -= itemWillDeleteInfo.totalSize;
+                    CGFloat size =  [self imageSize:[_contactCache objectForKey:[_keyList objectAtIndex:index]]];
+                    [_contactCache removeObjectForKey:[_keyList objectAtIndex:index]];
+                    _contactCacheSize -= size;
+                    index++;
                 }
-          
-                [_contactCache setObject:[self makeRoundImage:image] forKey:key];
-
+                
+                [_contactCache setObject:circleImage forKey:key];
+                //[self writeToDirectory:[self makeRoundImage:image] forkey:key];
                 
             } else if (pixelImage == _maxCacheSize) {
-            
+                
                 [_contactCache removeAllObjects];
-                [_contactCache setObject:[self makeRoundImage:image] forKey:key];
+                [_contactCache setObject:circleImage forKey:key];
             }
         });
     }
-    
 }
 
-#pragma mark - delete list item
-
-- (ItemWillDeleteInfo)listItemWillDelete:(NSUInteger)sizeDelete {
-    
-    int totalSize = 0;
-    int numbuerItemDelete = 0;
-    
-    for (int i = 0; i < _keyList.count; i++) {
-    
-        if(totalSize < sizeDelete) {
-            // Total + size of item at index
-            totalSize += [self imageSize:[self getImageForKey:[_keyList objectAtIndex:i]]];
-            numbuerItemDelete ++;
-            
-        } else {
-            
-            break;
-        }
-    }
-    
-    ItemWillDeleteInfo itemWillDeleteInfo;
-    itemWillDeleteInfo.numbuerItemDelete = numbuerItemDelete;
-    itemWillDeleteInfo.totalSize = totalSize;
-    return itemWillDeleteInfo;
-}
-
-#pragma mark - get to cache with
-
-- (UIImage*)getImageForKey:(NSString *)key {
-  
-    if(key) {
-        
-        return [_contactCache objectForKey:key];
-    } else {
-        
-        return nil;
-    }
-}
+#pragma mark - get to image from cache or dir
 
 - (void)getImageForKey:(NSString *)key completionWith:(void(^)(UIImage* image))completion {
     
     dispatch_async(_cacheImageQueue, ^ {
         
-        if(key) {
+        if (key) {
             
             if (completion) {
                 
-                UIImage* image = [_contactCache objectForKey:key];
-                completion(image);
+                UIImage* image = [self getImageFromCache:key];
+                
+                if (image) {
+                    
+                    // Cache
+                    completion(image);
+                } else {
+                    
+                    // Disk
+                    completion([self getImageFromDirectory: key]);
+                }
             }
         } else {
             
@@ -159,39 +127,149 @@ typedef struct {
     });
 }
 
-- (NSUInteger)imageSize:(UIImage*)image {
-    return [UIImageJPEGRepresentation(image, 1.0) length];
+#pragma mark - get image size
+
+- (CGFloat)imageSize:(UIImage *)image {
+    
+    return image.size.height * image.size.width * 3 * [UIScreen mainScreen].scale;
 }
 
+#pragma mark - write image into cache
+
+- (void)writeToCache:(UIImage *)image forkey:(NSString *)key {
+    
+    if (image && key) {
+        
+        [_contactCache setObject:image forKey:key];
+    }
+}
+
+#pragma mark - write image into dir
+
+- (void)writeToDirectory:(UIImage *)image forkey:(NSString *)key {
+    
+    if (image != nil) {
+        
+        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString* documentsDirectory = [paths objectAtIndex:0];
+        NSString* path = [documentsDirectory stringByAppendingPathComponent:key];
+        NSString* imagePath = [path stringByAppendingPathComponent:@"image.png"];
+       
+        BOOL isDirectory;
+        NSFileManager* fileManager = [NSFileManager defaultManager];
+        
+        if(![fileManager fileExistsAtPath:imagePath isDirectory:&isDirectory]) {
+            
+            NSError* error = nil;
+            [fileManager createDirectoryAtPath:imagePath withIntermediateDirectories:YES attributes:nil error:&error];
+           
+            if(error) {
+               
+                NSLog(@"folder creation failed. %@",[error localizedDescription]);
+            } else {
+                
+                NSData* imageData = UIImagePNGRepresentation(image);
+                [imageData writeToFile:imagePath atomically:YES];
+            }
+            
+        }
+
+    }
+}
+
+#pragma mark - get image from cache
+
+- (UIImage *)getImageFromCache:(NSString *)key {
+    
+    if (key) {
+        
+        return [_contactCache objectForKey:key];
+    }
+    
+    return nil;
+}
+
+#pragma mark - get image from dir
+
+- (UIImage *)getImageFromDirectory:(NSString *)key {
+  
+    if (key) {
+        
+        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString* documentsDirectory = [paths objectAtIndex:0];
+        NSString* path = [documentsDirectory stringByAppendingPathComponent:key];
+        NSString* imagePath = [path stringByAppendingPathComponent:@"image.png"];
+        
+        if ([[NSFileManager defaultManager] fileExistsAtPath:imagePath]) {
+         
+            UIImage* image = [UIImage imageWithContentsOfFile:imagePath];
+            return image;
+        }
+    }
+    
+    return nil;
+}
 
 #pragma mark - draw image circle
 
 - (UIImage *)makeRoundImage:(UIImage *)image {
     
-    //resize image
-    CGRect rect;
-    int imageWidth = image.size.width;
-    int imageHeight =  image.size.height;
+    // Resize image
+    image = [self resizeImage:image];
+    CGFloat imageWidth = image.size.width;
+    CGRect rect = CGRectMake(0, 0, imageWidth, imageWidth);
+    
+    // Begin ImageContext
+    UIGraphicsBeginImageContext(rect.size);
+   
+    // Add a clip before drawing anything, in the shape of an rounded rect
+    [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:imageWidth/2] addClip];
+    [image drawInRect:rect];
+    UIImage* imageCircle = UIGraphicsGetImageFromCurrentImageContext();
+    
+    // End ImageContext
+    UIGraphicsEndImageContext();
+    
+    return imageCircle;
+}
+
+#pragma mark - resize image
+
+- (UIImage *)resizeImage:(UIImage *)image {
+    
+    CGAffineTransform scaleTransform;
+    CGPoint origin;
+    CGFloat edgeSquare = 100;
+    CGFloat imageWidth = image.size.width;
+    CGFloat imageHeight = image.size.height;
     
     if (imageWidth > imageHeight) {
         
-        rect = CGRectMake(0,0,imageHeight,imageHeight);
+        CGFloat scaleRatio = edgeSquare / imageHeight;
+        scaleTransform = CGAffineTransformMakeScale(scaleRatio, scaleRatio);
+        origin = CGPointMake(-(imageWidth - imageHeight) / 2, 0);
     } else {
         
-        rect = CGRectMake(0,0,imageWidth,imageWidth);
+        CGFloat scaleRatio = edgeSquare / imageWidth;
+        scaleTransform = CGAffineTransformMakeScale(scaleRatio, scaleRatio);
+        origin = CGPointMake(0, -(imageHeight - imageWidth) / 2);
     }
-    // Begin a new image that will be the new image with the rounded corners
-//    UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
-    // Add a clip before drawing anything, in the shape of an rounded rect
-    UIGraphicsBeginImageContext(rect.size);
-    [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:imageWidth/2] addClip];
-    [image drawInRect:rect];
     
-    UIImage* imageNew = UIGraphicsGetImageFromCurrentImageContext();
+    CGSize size = CGSizeMake(edgeSquare, edgeSquare);
+    
+    // Begin ImageContext
+    UIGraphicsBeginImageContext(size);
+    
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    
+    CGContextConcatCTM(context, scaleTransform);
+    [image drawAtPoint:origin];
+   
+    image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-//    UIGraphicsEndImageContext();
-    
-    return imageNew;
+    return image;
 }
+
 @end
