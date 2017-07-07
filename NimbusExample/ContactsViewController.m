@@ -99,7 +99,6 @@
     _searchController.searchResultsUpdater = self;
     _searchController.searchBar.searchBarStyle = UISearchBarStyleMinimal;
     _searchController.delegate = self;
-    _searchController.dimsBackgroundDuringPresentation = YES;
     _searchController.searchBar.delegate = self;
     [_searchController.searchBar sizeToFit];
     self.tableView.tableHeaderView = _searchController.searchBar;
@@ -111,7 +110,7 @@
     
     dispatch_async(_contactQueue, ^ {
         
-        int contacts = _contactEntityList.count;
+        NSUInteger contacts = _contactEntityList.count;
         NSString* groupNameContact = @"";
 
         for (int i = 0; i < contacts; i++) {
@@ -165,6 +164,7 @@
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController {
     
     NSString* searchString = searchController.searchBar.text;
+    
     if (searchString.length > 0) {
         
         // Search by string
@@ -176,7 +176,7 @@
 
 #pragma mark - getResultSearch
 
-- (NSMutableArray *)searchResult: (NSString *) searchString {
+- (NSMutableArray *)searchResult:(NSString *)searchString {
     
     NSMutableArray<ContactEntity*> *result = [[NSMutableArray alloc]init];
     
@@ -187,6 +187,7 @@
             [result addObject:contactEntity];
         }
     }
+    
     return result;
 }
 
@@ -199,6 +200,7 @@
     NSLog(@"%@", contactEntity.name);
     
     [UIView animateWithDuration:0.2 animations: ^ {
+        
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
     }];
 }

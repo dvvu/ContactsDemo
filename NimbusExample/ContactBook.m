@@ -38,8 +38,11 @@
         
         sharedInstance = [[ContactBook alloc] init];
     });
+    
     return sharedInstance;
 }
+
+#pragma mark - init
 
 - (instancetype)init {
     
@@ -161,6 +164,7 @@
 - (void)getPermissionUseAddressBook:(void (^)(NSError *))completion {
     
     ABAuthorizationStatus authorizationStatus =  ABAddressBookGetAuthorizationStatus();
+    
     if (authorizationStatus == kABAuthorizationStatusNotDetermined) {
         
         ABAddressBookRequestAccessWithCompletion(_addressBookRef, ^(bool granted, CFErrorRef error) {
@@ -219,6 +223,7 @@
 - (void)getPermissionUseContacts:(void (^)(NSError *))completion {
     
     CNAuthorizationStatus cNAuthorizationStatus = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
+    
     if (cNAuthorizationStatus == CNAuthorizationStatusAuthorized) {
         
         // The user has previously given access, add the contact
@@ -302,7 +307,7 @@
                         [_contactEntityList addObject:contactEntity];
                       
                         // Get image
-                        UIImage* image = [UIImage imageWithData:contact.imageData];//[UIImage imageNamed:@"t"];
+                        UIImage* image = [UIImage imageNamed:@"d"];//[UIImage imageWithData:contact.imageData];
                         if (image) {
                             
                             [[ContactCache sharedInstance] setImageForKey:image forKey:contact.identifier];
@@ -352,6 +357,7 @@
         for (CFIndex i = 0; i < CFArrayGetCount(peopleMutable); i++) {
             
             ABRecordRef contact = CFArrayGetValueAtIndex(peopleMutable, i);
+            
             if (contact) {
                 
                 ContactEntity* contactEntity = [[ContactEntity alloc] initWithAddressBook:contact];
@@ -360,6 +366,7 @@
                 
                 // Get Image
                 NSData* imgData = (__bridge NSData *)ABPersonCopyImageData(contact);
+                
                 if (imgData) {
 
                     UIImage* image = [UIImage imageWithData:imgData];

@@ -31,6 +31,7 @@
         
         sharedInstance = [[ContactCache alloc] init];
     });
+    
     return sharedInstance;
 }
 
@@ -234,7 +235,7 @@
 
 #pragma mark - resize image
 
--(UIImage *)resizeImage:(UIImage *)image {
+- (UIImage *)resizeImage:(UIImage *)image {
     
     CGAffineTransform scaleTransform;
     CGPoint origin;
@@ -260,6 +261,8 @@
     UIGraphicsBeginImageContext(size);
     
     CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    
     CGContextConcatCTM(context, scaleTransform);
     [image drawAtPoint:origin];
    

@@ -20,6 +20,7 @@
 @property (nonatomic) dispatch_queue_t resultSearchContactQueue;
 @property (strong, nonatomic) NITableViewModel* model;
 @property (nonatomic, strong) NICellFactory* cellFactory;
+
 @end
 
 @implementation ResultTableViewController
@@ -32,8 +33,8 @@
     self.tableView.contentInset = UIEdgeInsetsMake(10, 0, 0, 0);
     _cellFactory = [[NICellFactory alloc] init];
     [_cellFactory mapObjectClass:[ContactCellObject class] toCellClass:[ContactTableViewCell class]];
-    
-    // Dimis keyboard when scroll
+
+    // Dimis keyboard when drag
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
 }
 
@@ -42,26 +43,31 @@
     [self setupTableView];
 }
 
+#pragma mark - setupView
+
 - (void)setupTableView {
     
     dispatch_async(_resultSearchContactQueue, ^ {
         
-        NSMutableArray* objects = [NSMutableArray array];
-        
-        for (ContactEntity* contactEntity in _listContactBook) {
-
-            ContactCellObject* cellObject = [ContactCellObject objectWithTitle:contactEntity.name image:[contactEntity profileImageDefault]];
-            cellObject.contact = contactEntity;
-            [objects addObject:cellObject];
-        }
-        
-        _model = [[NITableViewModel alloc] initWithListArray:objects delegate:_cellFactory];
-        self.tableView.dataSource = _model;
-    
-        dispatch_async(dispatch_get_main_queue(), ^ {
+        if(_listContactBook) {
             
-            [self.tableView reloadData];
-        });
+            NSMutableArray* objects = [NSMutableArray array];
+            
+            for (ContactEntity* contactEntity in _listContactBook) {
+                
+                ContactCellObject* cellObject = [ContactCellObject objectWithTitle:contactEntity.name image:[contactEntity profileImageDefault]];
+                cellObject.contact = contactEntity;
+                [objects addObject:cellObject];
+            }
+            
+            _model = [[NITableViewModel alloc] initWithListArray:objects delegate:_cellFactory];
+            self.tableView.dataSource = _model;
+            
+            dispatch_async(dispatch_get_main_queue(), ^ {
+            
+                [self.tableView reloadData];
+            });
+        }
     });
     
 }
@@ -75,6 +81,7 @@
     NSLog(@"%@",  contactEntity.phone);
     
     [UIView animateWithDuration:0.2 animations: ^ {
+        
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
     }];
 }

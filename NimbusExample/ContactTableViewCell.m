@@ -36,6 +36,7 @@
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
     // Configure the view for the selected state
+    
 }
 
 #pragma mark - delegate oif NICell -> change when something is changed in cell
@@ -79,7 +80,7 @@
                                   toItem:nil
                                   attribute:NSLayoutAttributeNotAnAttribute
                                   multiplier:1
-                                  constant:self.contentView.frame.size.height*0.9]];
+                                  constant:self.contentView.frame.size.height * 0.9]];
     // Ratio = 1
     [_profileImage addConstraint:[NSLayoutConstraint
                                   constraintWithItem:_profileImage
@@ -115,7 +116,7 @@
                                                  toItem:_profileImage
                                                  attribute: NSLayoutAttributeLeft
                                                  multiplier:1.0
-                                                 constant:self.contentView.frame.size.height*0.9 + 8];
+                                                 constant:self.contentView.frame.size.height * 0.9 + 8];
     // Space to right = 8
     NSLayoutConstraint* rightNameConstraint = [NSLayoutConstraint
                                               constraintWithItem:_name
