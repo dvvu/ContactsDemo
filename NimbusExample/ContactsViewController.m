@@ -62,7 +62,6 @@
   
     self.tableView.dataSource = _model;
     
-    [self.tableView registerNib:[UINib nibWithNibName:@"ContactTableViewCell" bundle:nil] forCellReuseIdentifier:@"ContactCellIdentifier"];
     [self createSearchController];
 }
 

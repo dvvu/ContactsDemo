@@ -302,7 +302,7 @@
                         [_contactEntityList addObject:contactEntity];
                       
                         // Get image
-                        UIImage* image = [UIImage imageNamed:@"t"];//[UIImage imageWithData:contact.imageData];
+                        UIImage* image = [UIImage imageWithData:contact.imageData];//[UIImage imageNamed:@"t"];
                         if (image) {
                             
                             [[ContactCache sharedInstance] setImageForKey:image forKey:contact.identifier];
@@ -365,6 +365,7 @@
                     UIImage* image = [UIImage imageWithData:imgData];
                     [[ContactCache sharedInstance] setImageForKey:image forKey: recordId];
                 }
+                CFRelease((__bridge CFTypeRef)(imgData));
             }
             
         }

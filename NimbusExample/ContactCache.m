@@ -68,7 +68,7 @@
             // Add size to check condition
             _contactCacheSize += pixelImage;
             
-            NSLog(@"%u",_contactCacheSize);
+            NSLog(@"%lu",(unsigned long)_contactCacheSize);
             
             // size of image < valid memory?
             if (pixelImage < _maxCacheSize) {
