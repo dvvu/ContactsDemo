@@ -42,7 +42,7 @@
 
 - (BOOL)shouldUpdateCellWithObject:(id)object {
     
-    ContactEntity* contactEntity = [(ContactCellObject*)object contact];
+    ContactEntity* contactEntity = [(ContactCellObject *)object contact];
     _name.text = contactEntity.name;
     _profileImage.image = contactEntity.profileImageDefault;
     
@@ -90,7 +90,7 @@
                                   multiplier:1
                                   constant:0]];
     // Space to left = 8
-    NSLayoutConstraint *leftProfileImageConstraint = [NSLayoutConstraint
+    NSLayoutConstraint* leftProfileImageConstraint = [NSLayoutConstraint
                                                  constraintWithItem:_profileImage
                                                  attribute:NSLayoutAttributeLeft
                                                  relatedBy:NSLayoutRelationEqual
@@ -108,7 +108,7 @@
     [[_name.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor] setActive:YES];
     
     // Space to _profileImage left = 8
-    NSLayoutConstraint *leftNameConstraint = [NSLayoutConstraint
+    NSLayoutConstraint* leftNameConstraint = [NSLayoutConstraint
                                                  constraintWithItem:_name
                                                  attribute:NSLayoutAttributeLeft
                                                  relatedBy:NSLayoutRelationEqual
@@ -117,7 +117,7 @@
                                                  multiplier:1.0
                                                  constant:self.contentView.frame.size.height*0.9 + 8];
     // Space to right = 8
-    NSLayoutConstraint *rightNameConstraint = [NSLayoutConstraint
+    NSLayoutConstraint* rightNameConstraint = [NSLayoutConstraint
                                               constraintWithItem:_name
                                               attribute:NSLayoutAttributeRight
                                               relatedBy:NSLayoutRelationEqual

@@ -155,7 +155,7 @@
     
     // Create image
     CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
-    UIColor *fillColor = [UIColor blackColor];
+    UIColor* fillColor = [UIColor blackColor];
     
     // Begin ImageContext Options
     UIGraphicsBeginImageContextWithOptions(imageSize, YES, 0);
@@ -163,7 +163,7 @@
     CGContextRef context = UIGraphicsGetCurrentContext();
     [fillColor setFill];
     CGContextFillRect(context, CGRectMake(0, 0, imageSize.width, imageSize.height));
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIImage* image = UIGraphicsGetImageFromCurrentImageContext();
 
     // Begin ImageContext
     UIGraphicsBeginImageContext(rect.size);

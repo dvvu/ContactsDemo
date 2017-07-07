@@ -12,8 +12,8 @@
 
 @interface ContactTableViewCell : UITableViewCell <NICell>
 
-@property (strong, nonatomic) UIImageView *profileImage;
-@property (strong, nonatomic) UILabel *name;
+@property (strong, nonatomic) UIImageView* profileImage;
+@property (strong, nonatomic) UILabel* name;
 
 @end
 

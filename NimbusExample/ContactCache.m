@@ -11,7 +11,7 @@
 
 @interface ContactCache()
 
-@property (nonatomic, strong) NSCache *contactCache;
+@property (nonatomic, strong) NSCache* contactCache;
 @property (nonatomic) NSUInteger contactCacheSize;
 @property (nonatomic, strong) NSMutableArray<NSString*> *keyList;
 @property (nonatomic) NSUInteger maxCacheSize;
@@ -24,7 +24,7 @@
 
 + (instancetype)sharedInstance {
     
-    static ContactCache *sharedInstance;
+    static ContactCache* sharedInstance;
     static dispatch_once_t onceToken;
     
     dispatch_once(&onceToken, ^ {
@@ -129,7 +129,8 @@
 #pragma mark - get image size
 
 - (CGFloat)imageSize:(UIImage *)image {
-    return image.size.height*image.size.width*3*[UIScreen mainScreen].scale;
+    
+    return image.size.height * image.size.width * 3 * [UIScreen mainScreen].scale;
 }
 
 #pragma mark - write image into cache
@@ -266,19 +267,6 @@
     UIGraphicsEndImageContext();
     
     return image;
-}
-
-#pragma mark - check key exist
-
-- (BOOL)keyExisted:(NSString *)key {
-   
-    for (int i = 0; i < _keyList.count; i++) {
-        
-        if([_keyList[i] isEqualToString:key]) {
-            return YES;
-        }
-    }
-    return NO;
 }
 
 @end

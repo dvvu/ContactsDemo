@@ -196,15 +196,16 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
  
     id object = [_model objectAtIndexPath:indexPath];
-    ContactEntity* contactEntity = [(ContactCellObject*)object contact];
+    ContactEntity* contactEntity = [(ContactCellObject *)object contact];
     NSLog(@"%@", contactEntity.name);
     
-    [UIView animateWithDuration:0.2 animations:^{
+    [UIView animateWithDuration:0.2 animations: ^ {
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
     }];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     return 50;
 }
 
