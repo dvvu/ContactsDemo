@@ -307,7 +307,7 @@
                         [_contactEntityList addObject:contactEntity];
                       
                         // Get image
-                        UIImage* image = [UIImage imageNamed:@"d"];//[UIImage imageWithData:contact.imageData];
+                        UIImage* image = [UIImage imageWithData:contact.imageData];//[UIImage imageNamed:@"d"];
                         if (image) {
                             
                             [[ContactCache sharedInstance] setImageForKey:image forKey:contact.identifier];
@@ -365,14 +365,13 @@
                 NSString* recordId = [NSString stringWithFormat:@"%d",(ABRecordGetRecordID(contact))];
                 
                 // Get Image
-                NSData* imgData = (__bridge NSData *)ABPersonCopyImageData(contact);
+                NSData* imgData = CFBridgingRelease((__bridge CFTypeRef)((__bridge NSData *)ABPersonCopyImageData(contact)));
                 
                 if (imgData) {
 
                     UIImage* image = [UIImage imageWithData:imgData];
                     [[ContactCache sharedInstance] setImageForKey:image forKey: recordId];
                 }
-                CFRelease((__bridge CFTypeRef)(imgData));
             }
             
         }

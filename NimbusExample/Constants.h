@@ -10,7 +10,7 @@
 #define Constants_h
 
 
-#define iOS_VERSION_GREATER_THAN_OR_EQUAL_TO(version) [[[UIDevice currentDevice] systemVersion] floatValue] >= version
+#define iOS_VERSION_GREATER_THAN_OR_EQUAL_TO(version) [[[UIDevice currentDevice] systemVersion] floatValue] <= version
 
 // 10M
 #define MAX_CACHE_SIZE 1*1024*1024
