@@ -114,6 +114,7 @@
         int contacts = _contactEntityList.count;
         NSString* groupNameContact = @"";
 
+        // Run on background to get name group
         for (int i = 0; i < contacts; i++) {
             
             NSString* name = [_contactEntityList[i].name stringByReplacingOccurrencesOfString:@" " withString:@""];
@@ -126,12 +127,12 @@
 
         }
         
-        NSUInteger characterGroupNameContactCount = [groupNameContact length];
+        int characterGroupNameCount = [groupNameContact length];
         
         // Run on background to get object
         for (int i = 0; i < contacts; i++) {
             
-            if (i < characterGroupNameContactCount) {
+            if (i < characterGroupNameCount) {
  
                 [_model addSectionWithTitle:[groupNameContact substringWithRange:NSMakeRange(i,1)]];
             }
@@ -165,6 +166,7 @@
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController {
     
     NSString* searchString = searchController.searchBar.text;
+    
     if (searchString.length > 0) {
         
         // Search by string
