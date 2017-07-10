@@ -34,7 +34,7 @@
     _cellFactory = [[NICellFactory alloc] init];
     [_cellFactory mapObjectClass:[ContactCellObject class] toCellClass:[ContactTableViewCell class]];
 
-    // Dimis keyboard when drag
+    // Dimiss keyboard when drag
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
 }
 

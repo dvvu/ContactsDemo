@@ -14,10 +14,10 @@
 #pragma mark - singleton
 + (instancetype)sharedInstance;
 
-#pragma mark - cache image for key
+#pragma mark - set image to cache for key
 - (void)setImageForKey:(UIImage *)image forKey:(NSString *)key;
 
-#pragma mark - get image Cache
+#pragma mark - get image from cache with key
 - (void)getImageForKey:(NSString *)key completionWith:(void(^)(UIImage* image))completion;
 
 @end

@@ -172,10 +172,13 @@
             if (granted) {
                 
                 // First time access has been granted, add the contact
-                if (completion) {
+                dispatch_async(dispatch_get_main_queue(), ^ {
+                  
+                    if (completion) {
                     
-                    completion(nil);
-                }
+                        completion(nil);
+                    }
+                });
                 
             } else {
                 

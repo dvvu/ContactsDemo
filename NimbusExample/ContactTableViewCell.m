@@ -79,7 +79,7 @@
                                   relatedBy:NSLayoutRelationEqual
                                   toItem:nil
                                   attribute:NSLayoutAttributeNotAnAttribute
-                                  multiplier:1
+                                  multiplier:1.0
                                   constant:self.contentView.frame.size.height * 0.9]];
     // Ratio = 1
     [_profileImage addConstraint:[NSLayoutConstraint
