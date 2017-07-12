@@ -20,7 +20,7 @@
 @property (nonatomic, strong) NSString* name;
 
 #pragma mark - intit CNContact
-- (ContactEntity *)initWithCNContacts:(CNContact* )contact;
+- (ContactEntity *)initWithCNContacts:(CNContact *)contact;
 
 #pragma mark - get ABAddressBookRef
 - (ContactEntity *)initWithAddressBook:(ABRecordRef)contact;

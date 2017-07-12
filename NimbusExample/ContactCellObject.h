@@ -7,9 +7,22 @@
 //
 
 #import "NICellCatalog.h"
+#import "ContactTableViewCell.h"
+
+@protocol ContactCellObjectDelegate <NSObject>
+
+- (BOOL)checkCellIsVisiable: (ContactTableViewCell *)cell;
+
+@end
 
 @interface ContactCellObject : NITitleCellObject
 
-@property (nonatomic, weak) id contact;
+@property(nonatomic, weak) id<ContactCellObjectDelegate> delegate;
+
+@property(nonatomic, weak) id contact;
+
+@property(nonatomic, weak) UIImage* imageFromCache;
+
+- (void)getImageCacheForCell: (ContactTableViewCell *)cell;
 
 @end

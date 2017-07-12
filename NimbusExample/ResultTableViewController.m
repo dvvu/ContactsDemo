@@ -18,7 +18,7 @@
 @interface ResultTableViewController ()
 
 @property (nonatomic) dispatch_queue_t resultSearchContactQueue;
-@property (strong, nonatomic) NITableViewModel* model;
+@property (nonatomic, strong ) NITableViewModel* model;
 @property (nonatomic, strong) NICellFactory* cellFactory;
 
 @end
@@ -26,21 +26,21 @@
 @implementation ResultTableViewController
 
 - (void)viewDidLoad {
-    [super viewDidLoad];
-    
-    _resultSearchContactQueue = dispatch_queue_create("RESULT_SEARCH_CONTACT_QUEUE", DISPATCH_QUEUE_SERIAL);
+
+    [super viewDidLoad];    
     self.edgesForExtendedLayout = UIRectEdgeNone;
     self.tableView.contentInset = UIEdgeInsetsMake(10, 0, 0, 0);
-    _cellFactory = [[NICellFactory alloc] init];
-    [_cellFactory mapObjectClass:[ContactCellObject class] toCellClass:[ContactTableViewCell class]];
-
     // Dimiss keyboard when drag
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
+    
+    _resultSearchContactQueue = dispatch_queue_create("RESULT_SEARCH_CONTACT_QUEUE", DISPATCH_QUEUE_SERIAL);
+    _cellFactory = [[NICellFactory alloc] init];
+    [_cellFactory mapObjectClass:[ContactCellObject class] toCellClass:[ContactTableViewCell class]];
 }
 
 -(void)viewWillAppear:(BOOL)animated {
+
     [super viewWillAppear:true];
-    
     [self setupTableView];
 }
 

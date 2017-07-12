@@ -12,7 +12,7 @@
 @interface ContactCache()
 
 @property (nonatomic, strong) NSCache* contactCache;
-@property (nonatomic) NSUInteger contactCacheSize;
+@property (nonatomic) NSUInteger totalPixel;
 @property (nonatomic, strong) NSMutableArray<NSString*> *keyList;
 @property (nonatomic) NSUInteger maxCacheSize;
 @property (nonatomic) dispatch_queue_t cacheImageQueue;
@@ -40,6 +40,7 @@
 - (instancetype)init {
 
     self = [super init];
+    
     if (self) {
         
         _maxCacheSize = MAX_CACHE_SIZE;
@@ -67,19 +68,19 @@
             CGFloat pixelImage = [self imageSize:circleImage];
             
             // Add size to check condition
-            _contactCacheSize += pixelImage;
+            _totalPixel += pixelImage;
             
-            NSLog(@"%lu",(unsigned long)_contactCacheSize);
+            NSLog(@"%lu",(unsigned long)_totalPixel);
             
             // size of image < valid memory?
-            if (pixelImage < _maxCacheSize) {
+            if (pixelImage < MAX_ITEM_SIZE) {
               
                 int index = 0;
-                while (_contactCacheSize > _maxCacheSize) {
+                while (_totalPixel > _maxCacheSize) {
                     
                     CGFloat size =  [self imageSize:[_contactCache objectForKey:[_keyList objectAtIndex:index]]];
                     [_contactCache removeObjectForKey:[_keyList objectAtIndex:index]];
-                    _contactCacheSize -= size;
+                    _totalPixel -= size;
                     index++;
                 }
                 
@@ -213,7 +214,7 @@
 #pragma mark - draw image circle
 
 - (UIImage *)makeRoundImage:(UIImage *)image {
-    
+   
     // Resize image
     image = [self resizeImage:image];
     CGFloat imageWidth = image.size.width;
@@ -261,8 +262,6 @@
     UIGraphicsBeginImageContext(size);
     
     CGContextRef context = UIGraphicsGetCurrentContext();
-    
-    
     CGContextConcatCTM(context, scaleTransform);
     [image drawAtPoint:origin];
    

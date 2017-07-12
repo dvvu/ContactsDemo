@@ -480,7 +480,7 @@
 				TargetAttributes = {
 					F8E82BBD1EF263F000A4CB95 = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = X2HJQ2687F;
+						DevelopmentTeam = WQY493BK39;
 						ProvisioningStyle = Automatic;
 					};
 					F8E82BD61EF263F000A4CB95 = {
@@ -711,7 +711,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = X2HJQ2687F;
+				DEVELOPMENT_TEAM = WQY493BK39;
 				INFOPLIST_FILE = NimbusExample/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -724,7 +724,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = X2HJQ2687F;
+				DEVELOPMENT_TEAM = WQY493BK39;
 				INFOPLIST_FILE = NimbusExample/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

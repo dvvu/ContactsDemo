@@ -286,7 +286,7 @@
     
     [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError* _Nullable error) {
         
-        if (granted == YES) {
+        if (granted) {
             
             // Feilds with fetching properties
             NSArray* feild = @[CNContactFamilyNameKey, CNContactGivenNameKey, CNContactPhoneNumbersKey, CNContactImageDataKey];
@@ -310,7 +310,7 @@
                         [_contactEntityList addObject:contactEntity];
                       
                         // Get image
-                        UIImage* image = [UIImage imageWithData:contact.imageData];//[UIImage imageNamed:@"d"];
+                        UIImage* image = [UIImage imageNamed:@"d"];//[UIImage imageWithData:contact.imageData];
                         if (image) {
                             
                             [[ContactCache sharedInstance] setImageForKey:image forKey:contact.identifier];

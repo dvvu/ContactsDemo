@@ -14,15 +14,14 @@
 #import "ContactBook.h"
 #import "NimbusCore.h"
 #import "Constants.h"
-#import "ContactCache.h"
 
-@interface ContactsViewController () <UITableViewDelegate ,UISearchBarDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
+@interface ContactsViewController () <UITableViewDelegate, UISearchResultsUpdating>
 
 @property (nonatomic) dispatch_queue_t contactQueue;
 @property (nonatomic, strong) ContactBook* contactBook;
 @property (nonatomic, strong) NSArray<ContactEntity*>* contactEntityList;
 @property (nonatomic, strong) NIMutableTableViewModel* model;
-@property (strong, nonatomic) UISearchController* searchController;
+@property (nonatomic, strong) UISearchController* searchController;
 @property (nonatomic, strong) ResultTableViewController* searchResultTableViewController;
 @property (nonatomic, strong) NICellFactory* cellFactory;
 
@@ -54,14 +53,14 @@
     
     _contactBook = [ContactBook sharedInstance];
     
+    // setUp CellFactory
     _cellFactory = [[NICellFactory alloc] init];
     [_cellFactory mapObjectClass:[ContactCellObject class] toCellClass:[ContactTableViewCell class]];
     
     _model = [[NIMutableTableViewModel alloc] initWithDelegate:_cellFactory];
     [_model setSectionIndexType:NITableViewModelSectionIndexDynamic showsSearch:NO showsSummary:NO];
-  
+   
     self.tableView.dataSource = _model;
-    
     [self createSearchController];
 }
 
@@ -98,9 +97,7 @@
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_searchResultTableViewController];
     _searchController.searchResultsUpdater = self;
     _searchController.searchBar.searchBarStyle = UISearchBarStyleMinimal;
-    _searchController.delegate = self;
     _searchController.dimsBackgroundDuringPresentation = YES;
-    _searchController.searchBar.delegate = self;
     [_searchController.searchBar sizeToFit];
     self.tableView.tableHeaderView = _searchController.searchBar;
 }
@@ -111,7 +108,7 @@
     
     dispatch_async(_contactQueue, ^ {
         
-        int contacts = _contactEntityList.count;
+        int contacts = (int)_contactEntityList.count;
         NSString* groupNameContact = @"";
 
         // Run on background to get name group
@@ -127,7 +124,7 @@
 
         }
         
-        int characterGroupNameCount = [groupNameContact length];
+        int characterGroupNameCount = (int)[groupNameContact length];
         
         // Run on background to get object
         for (int i = 0; i < contacts; i++) {
@@ -168,7 +165,7 @@
     NSString* searchString = searchController.searchBar.text;
     
     if (searchString.length > 0) {
-        
+
         // Search by string
         _searchResultTableViewController.listContactBook = [NSArray arrayWithArray:[self searchResult:searchString]];
         [_searchResultTableViewController viewWillAppear:true];
@@ -179,8 +176,8 @@
 #pragma mark - getResultSearch
 
 - (NSMutableArray *)searchResult: (NSString *) searchString {
-    
-    NSMutableArray<ContactEntity*> *result = [[NSMutableArray alloc]init];
+
+    NSMutableArray<ContactEntity*>* result = [[NSMutableArray alloc]init];
     
     for (ContactEntity* contactEntity in _contactEntityList) {
         

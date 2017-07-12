@@ -18,13 +18,10 @@
 
 @implementation ContactEntity
 
-@synthesize name;
-@synthesize phone;
-@synthesize identifier;
-
 #pragma mark - getCNContact
 
 - (ContactEntity *)initWithCNContacts:(CNContact *)contact {
+ 
     self = [super init];
     
     if (self) {
@@ -46,13 +43,13 @@
             _textNameDefault = [_textNameDefault stringByAppendingString:[lastName substringToIndex:1]];
         }
         
-        self.name = [NSString stringWithFormat:@"%@ %@", firstName, lastName];
+        _name = [NSString stringWithFormat:@"%@ %@", firstName, lastName];
         
         // Get ID Contact
-        self.identifier = contact.identifier;
+        _identifier = contact.identifier;
         
         // Get PhoneNumber
-        self.phone = [[NSMutableArray alloc] init];
+        _phone = [[NSMutableArray alloc] init];
         
         for (CNLabeledValue* cNLabeledValue in contact.phoneNumbers) {
             
@@ -61,7 +58,7 @@
             if([self validatePhone:phoneNumber]) {
         
                 NSString* phoneNumberFormatted = [phoneNumber stringByReplacingOccurrencesOfString:@"\u00a0" withString:@""];
-                [self.phone addObject:phoneNumberFormatted];
+                [_phone addObject:phoneNumberFormatted];
             }
             
         }
@@ -74,6 +71,7 @@
 #pragma mark - getCNABRecordRef
 
 - (ContactEntity *)initWithAddressBook:(ABRecordRef )contact {
+    
     self = [super init];
  
     if (self) {
@@ -99,16 +97,16 @@
             lastName = @"";
         }
         
-        self.name = [NSString stringWithFormat:@"%@ %@", firstName, lastName];
+        _name = [NSString stringWithFormat:@"%@ %@", firstName, lastName];
         
         // Get ID Record
         NSString* recordId = [NSString stringWithFormat:@"%d",(ABRecordGetRecordID(contact))];
-        self.identifier = recordId;
+        _identifier = recordId;
         
         ABMultiValueRef phoneNumbers = (__bridge ABMultiValueRef)(CFBridgingRelease(ABRecordCopyValue(contact, kABPersonPhoneProperty)));
         CFIndex numberOfPhoneNumbers = ABMultiValueGetCount(phoneNumbers);
         
-        self.phone = [[NSMutableArray alloc] init];
+        _phone = [[NSMutableArray alloc] init];
         
         for (CFIndex i = 0; i < numberOfPhoneNumbers; i++) {
             
@@ -117,7 +115,7 @@
             if ([self validatePhone:phoneNumber]) {
              
                 NSString* phoneNumberFormatted = [phoneNumber stringByReplacingOccurrencesOfString:@"\u00a0" withString:@""];
-                [self.phone addObject:phoneNumberFormatted];
+                [_phone addObject:phoneNumberFormatted];
             }
         }
     }
