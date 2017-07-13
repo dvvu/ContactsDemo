@@ -23,7 +23,6 @@
 @property (nonatomic, strong) NIMutableTableViewModel* model;
 @property (nonatomic, strong) UISearchController* searchController;
 @property (nonatomic, strong) ResultTableViewController* searchResultTableViewController;
-@property (nonatomic, strong) NICellFactory* cellFactory;
 
 @end
 
@@ -52,12 +51,7 @@
 - (void)setupTableMode {
     
     _contactBook = [ContactBook sharedInstance];
-    
-    // setUp CellFactory
-    _cellFactory = [[NICellFactory alloc] init];
-    [_cellFactory mapObjectClass:[ContactCellObject class] toCellClass:[ContactTableViewCell class]];
-    
-    _model = [[NIMutableTableViewModel alloc] initWithDelegate:_cellFactory];
+    _model = [[NIMutableTableViewModel alloc] initWithDelegate:(id)[NICellFactory class]];
     [_model setSectionIndexType:NITableViewModelSectionIndexDynamic showsSearch:NO showsSummary:NO];
    
     self.tableView.dataSource = _model;
@@ -114,7 +108,7 @@
         // Run on background to get name group
         for (int i = 0; i < contacts; i++) {
             
-            NSString* name = [_contactEntityList[i].name stringByReplacingOccurrencesOfString:@" " withString:@""];
+            NSString* name = [_contactEntityList[i].name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];//[_contactEntityList[i].name stringByReplacingOccurrencesOfString:@" " withString:@""];
             NSString* firstChar = [name substringToIndex:1];
             
             if ([groupNameContact.uppercaseString rangeOfString:firstChar.uppercaseString].location == NSNotFound) {
@@ -135,7 +129,7 @@
             }
             
             ContactEntity* contactEntity = _contactEntityList[i];
-            NSString* name = [contactEntity.name stringByReplacingOccurrencesOfString:@" " withString:@""];
+            NSString* name = [_contactEntityList[i].name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];//[contactEntity.name stringByReplacingOccurrencesOfString:@" " withString:@""];
             NSString* firstChar = [name substringToIndex:1];
         
             NSRange range = [groupNameContact rangeOfString:firstChar];
@@ -166,27 +160,11 @@
     
     if (searchString.length > 0) {
 
-        // Search by string
-        _searchResultTableViewController.listContactBook = [NSArray arrayWithArray:[self searchResult:searchString]];
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"name contains[cd] %@", searchString];
+        _searchResultTableViewController.listContactBook = [_contactEntityList filteredArrayUsingPredicate:predicate];
         [_searchResultTableViewController viewWillAppear:true];
     }
 
-}
-
-#pragma mark - getResultSearch
-
-- (NSMutableArray *)searchResult: (NSString *) searchString {
-
-    NSMutableArray<ContactEntity*>* result = [[NSMutableArray alloc]init];
-    
-    for (ContactEntity* contactEntity in _contactEntityList) {
-        
-        if ([contactEntity.name.uppercaseString rangeOfString:searchString.uppercaseString].location != NSNotFound) {
-            
-            [result addObject:contactEntity];
-        }
-    }
-    return result;
 }
 
 #pragma mark - selected

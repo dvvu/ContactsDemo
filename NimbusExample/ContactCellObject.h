@@ -6,22 +6,13 @@
 //  Copyright © 2017 Vu Doan. All rights reserved.
 //
 
-#import "NICellCatalog.h"
 #import "ContactTableViewCell.h"
-
-@protocol ContactCellObjectDelegate <NSObject>
-
-- (BOOL)checkCellIsVisiable: (ContactTableViewCell *)cell;
-
-@end
+#import "NICellCatalog.h"
 
 @interface ContactCellObject : NITitleCellObject
 
-@property(nonatomic, weak) id<ContactCellObjectDelegate> delegate;
-
-@property(nonatomic, weak) id contact;
-
 @property(nonatomic, weak) UIImage* imageFromCache;
+@property(nonatomic, weak) id contact;
 
 - (void)getImageCacheForCell: (ContactTableViewCell *)cell;
 

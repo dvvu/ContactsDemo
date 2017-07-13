@@ -7,14 +7,19 @@
 //
 
 #import "ContactCellObject.h"
-#import "ContactCache.h"
 #import "ContactEntity.h"
+#import "ContactCache.h"
 
 @implementation ContactCellObject
 
+- (Class)cellClass {
+    
+    return [ContactTableViewCell class];
+}
+
 - (void)getImageCacheForCell: (ContactTableViewCell *)cell {
     
-    __weak ContactTableViewCell* weakCell =  cell;
+    __weak ContactTableViewCell* contactTableViewCell = cell;
     
     ContactEntity* contactEntity = _contact;
     
@@ -24,11 +29,11 @@
             
             _imageFromCache = image;
             
-            if ([contactEntity.identifier isEqualToString:weakCell.identifier]) {
+            if ([contactEntity.identifier isEqualToString:contactTableViewCell.identifier]) {
                 
                 dispatch_async(dispatch_get_main_queue(), ^ {
                     
-                    weakCell.profileImageView.image = image;
+                    contactTableViewCell.profileImageView.image = image;
                 });
             }
         }

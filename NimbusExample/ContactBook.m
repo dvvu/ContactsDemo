@@ -9,10 +9,10 @@
 #import <AddressBookUI/AddressBookUI.h>
 #import <AddressBook/ABAddressBook.h>
 #import <Contacts/Contacts.h>
-#import "ContactBook.h"
-#import "Constants.h"
 #import "ContactEntity.h"
 #import "ContactCache.h"
+#import "ContactBook.h"
+#import "Constants.h"
 
 @interface ContactBook()
 

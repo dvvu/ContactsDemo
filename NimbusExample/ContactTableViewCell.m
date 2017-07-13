@@ -15,7 +15,7 @@
 
 #pragma mark - init TableCell
 
-- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
    
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
    
@@ -25,6 +25,19 @@
     }
     
     return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+   
+    self = [super initWithCoder:aDecoder];
+    
+    if (self) {
+        
+        [self setupLayoutForCell];
+    }
+    
+    return self;
+
 }
 
 #pragma mark - selected cell
@@ -40,20 +53,21 @@
 
 - (BOOL)shouldUpdateCellWithObject:(id)object {
     
-    ContactEntity* contactEntity = [(ContactCellObject *)object contact];
-    self.identifier = contactEntity.identifier;
+    ContactCellObject* contactCellObject = (ContactCellObject *)object;
+    ContactEntity* contactEntity = [contactCellObject contact];
+    
+    _identifier = contactEntity.identifier;
     _nameLabel.text = contactEntity.name;
     
-    UIImage* imageFromCache = ((ContactCellObject *)object).imageFromCache;
+    UIImage* imageFromCache = contactCellObject.imageFromCache;
     
     if (imageFromCache) {
         
         _profileImageView.image = imageFromCache;
-        
     } else {
         
         _profileImageView.image = contactEntity.profileImageDefault;
-        [((ContactCellObject *)object) getImageCacheForCell:self];
+        [contactCellObject getImageCacheForCell:self];
     }
 
     return YES;

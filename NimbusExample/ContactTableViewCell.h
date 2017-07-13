@@ -6,15 +6,15 @@
 //  Copyright © 2017 Vu Doan. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
 #import "NimbusModels.h"
+#import <UIKit/UIKit.h>
 #import "NimbusCore.h"
 
 @interface ContactTableViewCell : UITableViewCell <NICell>
 
-@property (nonatomic, strong) NSString* identifier;
 @property (nonatomic, strong) UIImageView* profileImageView;
-@property (nonatomic, strong) UILabel *nameLabel;
+@property (nonatomic, strong) NSString* identifier;
+@property (nonatomic, strong) UILabel* nameLabel;
 
 @end
 
