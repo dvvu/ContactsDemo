@@ -6,7 +6,6 @@
 //  Copyright © 2017 Vu Doan. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <AddressBookUI/AddressBookUI.h>
 #import <AddressBook/ABAddressBook.h>
 #import <Foundation/Foundation.h>
@@ -20,7 +19,7 @@
 @property (nonatomic, strong) NSString* name;
 
 #pragma mark - intit CNContact
-- (ContactEntity *)initWithCNContacts:(CNContact* )contact;
+- (ContactEntity *)initWithCNContacts:(CNContact *)contact;
 
 #pragma mark - get ABAddressBookRef
 - (ContactEntity *)initWithAddressBook:(ABRecordRef)contact;

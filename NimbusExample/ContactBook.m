@@ -9,10 +9,10 @@
 #import <AddressBookUI/AddressBookUI.h>
 #import <AddressBook/ABAddressBook.h>
 #import <Contacts/Contacts.h>
-#import "ContactBook.h"
-#import "Constants.h"
 #import "ContactEntity.h"
 #import "ContactCache.h"
+#import "ContactBook.h"
+#import "Constants.h"
 
 @interface ContactBook()
 
@@ -118,7 +118,7 @@
    
         if (_isSupportiOS9) {
         
-            [self getContactsWithCNContacts:^(NSMutableArray* contactList, NSError* error) {
+            [self getContactsWithCNContacts:^(NSMutableArray* contactEntityList, NSError* error) {
                 
                 if (error) {
                     
@@ -130,7 +130,7 @@
                     
                     if (completion) {
                         
-                        completion(contactList, nil);
+                        completion(contactEntityList, nil);
                     }
                 }
                 
@@ -172,10 +172,13 @@
             if (granted) {
                 
                 // First time access has been granted, add the contact
-                if (completion) {
+                dispatch_async(dispatch_get_main_queue(), ^ {
+                  
+                    if (completion) {
                     
-                    completion(nil);
-                }
+                        completion(nil);
+                    }
+                });
                 
             } else {
                 
@@ -283,8 +286,9 @@
     
     [_contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError* _Nullable error) {
         
-        if (granted == YES) {
+        if (granted) {
             
+            _contactEntityList = [[NSMutableArray alloc] init];
             // Feilds with fetching properties
             NSArray* feild = @[CNContactFamilyNameKey, CNContactGivenNameKey, CNContactPhoneNumbersKey, CNContactImageDataKey];
             CNContactFetchRequest* request = [[CNContactFetchRequest alloc] initWithKeysToFetch:feild];
@@ -304,6 +308,7 @@
                     if(contact) {
                         
                         ContactEntity* contactEntity = [[ContactEntity alloc] initWithCNContacts:contact];
+                        
                         [_contactEntityList addObject:contactEntity];
                       
                         // Get image
@@ -354,6 +359,8 @@
         
     } else {
         
+        _contactEntityList = [[NSMutableArray alloc] init];
+        
         for (CFIndex i = 0; i < CFArrayGetCount(peopleMutable); i++) {
             
             ABRecordRef contact = CFArrayGetValueAtIndex(peopleMutable, i);
@@ -365,14 +372,13 @@
                 NSString* recordId = [NSString stringWithFormat:@"%d",(ABRecordGetRecordID(contact))];
                 
                 // Get Image
-                NSData* imgData = (__bridge NSData *)ABPersonCopyImageData(contact);
+                NSData* imgData = CFBridgingRelease((__bridge CFTypeRef)((__bridge NSData *)ABPersonCopyImageData(contact)));
                 
                 if (imgData) {
 
                     UIImage* image = [UIImage imageWithData:imgData];
                     [[ContactCache sharedInstance] setImageForKey:image forKey: recordId];
                 }
-                CFRelease((__bridge CFTypeRef)(imgData));
             }
             
         }

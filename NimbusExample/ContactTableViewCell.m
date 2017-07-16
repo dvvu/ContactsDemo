@@ -15,25 +15,35 @@
 
 #pragma mark - init TableCell
 
-- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
    
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
-  
+   
     if (self) {
         
-        _name = [[UILabel alloc] init];
-        _profileImage = [[UIImageView alloc] init];
-        [self.contentView addSubview:_name];
-        [self.contentView addSubview:_profileImage];
         [self setupLayoutForCell];
     }
     
     return self;
 }
 
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+   
+    self = [super initWithCoder:aDecoder];
+    
+    if (self) {
+        
+        [self setupLayoutForCell];
+    }
+    
+    return self;
+
+}
+
 #pragma mark - selected cell
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+  
     [super setSelected:selected animated:animated];
     // Configure the view for the selected state
     
@@ -43,21 +53,22 @@
 
 - (BOOL)shouldUpdateCellWithObject:(id)object {
     
-    ContactEntity* contactEntity = [(ContactCellObject *)object contact];
-    _name.text = contactEntity.name;
-    _profileImage.image = contactEntity.profileImageDefault;
+    ContactCellObject* contactCellObject = (ContactCellObject *)object;
+    ContactEntity* contactEntity = [contactCellObject contact];
     
-    [[ContactCache sharedInstance] getImageForKey:contactEntity.identifier completionWith:^(UIImage* image) {
+    _identifier = contactEntity.identifier;
+    _nameLabel.text = contactEntity.name;
+    
+    UIImage* imageFromCache = contactCellObject.imageFromCache;
+    
+    if (imageFromCache) {
         
-        if (image) {
-            
-            dispatch_async(dispatch_get_main_queue(), ^ {
-                
-                _profileImage.image = image;
-            });
-        }
+        _profileImageView.image = imageFromCache;
+    } else {
         
-    }];
+        _profileImageView.image = contactEntity.profileImageDefault;
+        [contactCellObject getImageCacheForCell:self];
+    }
 
     return YES;
 }
@@ -66,33 +77,38 @@
 
 - (void)setupLayoutForCell {
     
+    _nameLabel = [[UILabel alloc] init];
+    _profileImageView = [[UIImageView alloc] init];
+    [self.contentView addSubview:_nameLabel];
+    [self.contentView addSubview:_profileImageView];
+    
     // ProfileImage
-    _profileImage.translatesAutoresizingMaskIntoConstraints = NO;
+    _profileImageView.translatesAutoresizingMaskIntoConstraints = NO;
     
     // Center Y
-    [[_profileImage.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor] setActive:YES];
+    [[_profileImageView.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor] setActive:YES];
     
     // Height = 0.9 parent View
-    [_profileImage addConstraint:[NSLayoutConstraint
-                                  constraintWithItem:_profileImage
+    [_profileImageView addConstraint:[NSLayoutConstraint
+                                  constraintWithItem:_profileImageView
                                   attribute:NSLayoutAttributeHeight
                                   relatedBy:NSLayoutRelationEqual
                                   toItem:nil
                                   attribute:NSLayoutAttributeNotAnAttribute
-                                  multiplier:1
+                                  multiplier:1.0
                                   constant:self.contentView.frame.size.height * 0.9]];
     // Ratio = 1
-    [_profileImage addConstraint:[NSLayoutConstraint
-                                  constraintWithItem:_profileImage
+    [_profileImageView addConstraint:[NSLayoutConstraint
+                                  constraintWithItem:_profileImageView
                                   attribute:NSLayoutAttributeHeight
                                   relatedBy:NSLayoutRelationEqual
-                                  toItem:_profileImage
+                                  toItem:_profileImageView
                                   attribute:NSLayoutAttributeWidth
                                   multiplier:1
                                   constant:0]];
     // Space to left = 8
     NSLayoutConstraint* leftProfileImageConstraint = [NSLayoutConstraint
-                                                 constraintWithItem:_profileImage
+                                                 constraintWithItem:_profileImageView
                                                  attribute:NSLayoutAttributeLeft
                                                  relatedBy:NSLayoutRelationEqual
                                                  toItem:self.contentView
@@ -103,23 +119,23 @@
     [self.contentView addConstraints:@[leftProfileImageConstraint]];
     
     // Name
-    _name.translatesAutoresizingMaskIntoConstraints = NO;
+    _nameLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
     // Center Y
-    [[_name.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor] setActive:YES];
+    [[_nameLabel.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor] setActive:YES];
     
     // Space to _profileImage left = 8
     NSLayoutConstraint* leftNameConstraint = [NSLayoutConstraint
-                                                 constraintWithItem:_name
+                                                 constraintWithItem:_nameLabel
                                                  attribute:NSLayoutAttributeLeft
                                                  relatedBy:NSLayoutRelationEqual
-                                                 toItem:_profileImage
+                                                 toItem:_profileImageView
                                                  attribute: NSLayoutAttributeLeft
                                                  multiplier:1.0
                                                  constant:self.contentView.frame.size.height * 0.9 + 8];
     // Space to right = 8
     NSLayoutConstraint* rightNameConstraint = [NSLayoutConstraint
-                                              constraintWithItem:_name
+                                              constraintWithItem:_nameLabel
                                               attribute:NSLayoutAttributeRight
                                               relatedBy:NSLayoutRelationEqual
                                               toItem:self.contentView

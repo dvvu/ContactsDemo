@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EA0C1D931F1A6DDB00078BF1 /* FriendsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EA0C1D921F1A6DDB00078BF1 /* FriendsTableViewController.m */; };
 		EA0EF0581F0C7E7600A40A58 /* ContactCellObject.m in Sources */ = {isa = PBXBuildFile; fileRef = EA0EF0571F0C7E7600A40A58 /* ContactCellObject.m */; };
 		EA28FEB71F0DE981005345EE /* ContactTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EA28FEB51F0DE981005345EE /* ContactTableViewCell.m */; };
 		EA2B009B1EFCEF66002344DF /* ContactBook.m in Sources */ = {isa = PBXBuildFile; fileRef = EA2B009A1EFCEF66002344DF /* ContactBook.m */; };
@@ -73,6 +74,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EA0C1D911F1A6DDB00078BF1 /* FriendsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FriendsTableViewController.h; sourceTree = "<group>"; };
+		EA0C1D921F1A6DDB00078BF1 /* FriendsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FriendsTableViewController.m; sourceTree = "<group>"; };
 		EA0EF0561F0C7E7600A40A58 /* ContactCellObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactCellObject.h; sourceTree = "<group>"; };
 		EA0EF0571F0C7E7600A40A58 /* ContactCellObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactCellObject.m; sourceTree = "<group>"; };
 		EA28FEB41F0DE981005345EE /* ContactTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactTableViewCell.h; sourceTree = "<group>"; };
@@ -208,6 +211,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		EA0C1D901F1A6D9E00078BF1 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				EAC422AA1EF91F7600FC3DA9 /* ContactsViewController.h */,
+				EAC422AB1EF91F7600FC3DA9 /* ContactsViewController.m */,
+				EA0C1D911F1A6DDB00078BF1 /* FriendsTableViewController.h */,
+				EA0C1D921F1A6DDB00078BF1 /* FriendsTableViewController.m */,
+			);
+			name = ViewController;
+			sourceTree = "<group>";
+		};
 		EABC80791F04942A0061779F /* CacheImage */ = {
 			isa = PBXGroup;
 			children = (
@@ -381,14 +395,13 @@
 		F8E82C001EF264E100A4CB95 /* ContactBook */ = {
 			isa = PBXGroup;
 			children = (
+				EA0C1D901F1A6D9E00078BF1 /* ViewController */,
 				EAE176971F03B2B0007B76A5 /* ResultTableViewController */,
 				EABC80791F04942A0061779F /* CacheImage */,
 				EAE176961F03B29B007B76A5 /* ContactBookLoader */,
 				EAE176951F03B26A007B76A5 /* ContactCells */,
 				EAE176941F03B251007B76A5 /* Entities */,
 				EAE176901F039C4F007B76A5 /* Constants.h */,
-				EAC422AA1EF91F7600FC3DA9 /* ContactsViewController.h */,
-				EAC422AB1EF91F7600FC3DA9 /* ContactsViewController.m */,
 			);
 			name = ContactBook;
 			sourceTree = "<group>";
@@ -480,7 +493,7 @@
 				TargetAttributes = {
 					F8E82BBD1EF263F000A4CB95 = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = X2HJQ2687F;
+						DevelopmentTeam = WQY493BK39;
 						ProvisioningStyle = Automatic;
 					};
 					F8E82BD61EF263F000A4CB95 = {
@@ -552,6 +565,7 @@
 				EA0EF0581F0C7E7600A40A58 /* ContactCellObject.m in Sources */,
 				F8E82C391EF2651900A4CB95 /* NINonRetainingCollections.m in Sources */,
 				F8E82BC61EF263F000A4CB95 /* AppDelegate.m in Sources */,
+				EA0C1D931F1A6DDB00078BF1 /* FriendsTableViewController.m in Sources */,
 				EA2B009B1EFCEF66002344DF /* ContactBook.m in Sources */,
 				F8E82C411EF2651900A4CB95 /* UIResponder+NimbusCore.m in Sources */,
 				F8E82C5D1EF2653900A4CB95 /* NIMutableTableViewModel.m in Sources */,
@@ -711,7 +725,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = X2HJQ2687F;
+				DEVELOPMENT_TEAM = WQY493BK39;
 				INFOPLIST_FILE = NimbusExample/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -724,7 +738,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = X2HJQ2687F;
+				DEVELOPMENT_TEAM = WQY493BK39;
 				INFOPLIST_FILE = NimbusExample/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
