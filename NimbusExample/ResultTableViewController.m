@@ -87,9 +87,20 @@
     }];
 }
 
+#pragma mark - heigh for cell
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    return 50;
+    CGFloat height = tableView.rowHeight;
+    id object = [_model objectAtIndexPath:indexPath];
+    id class = [object cellClass];
+    
+    if ([class respondsToSelector:@selector(heightForObject:atIndexPath:tableView:)]) {
+        
+        height = [class heightForObject:object atIndexPath:indexPath tableView:tableView];
+    }
+    
+    return height;
 }
 
 @end

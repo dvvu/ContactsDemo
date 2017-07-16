@@ -1,39 +1,37 @@
-
 //
-//  ContactsViewController.m
+//  FriendsTableViewController.m
 //  NimbusExample
 //
-//  Created by Doan Van Vu on 6/20/17.
+//  Created by Doan Van Vu on 7/15/17.
 //  Copyright © 2017 Vu Doan. All rights reserved.
 //
 
-#import "ResultTableViewController.h"
-#import "ContactsViewController.h"
+#import "FriendsTableViewController.h"
 #import "ContactCellObject.h"
 #import "ContactTableViewCell.h"
 #import "NimbusModels.h"
 #import "ContactBook.h"
 #import "NimbusCore.h"
+#import "ContactEntity.h"
 #import "Constants.h"
 
-@interface ContactsViewController () <UITableViewDelegate, UISearchResultsUpdating>
+@interface FriendsTableViewController ()
 
 @property (nonatomic) dispatch_queue_t contactQueue;
 @property (nonatomic, strong) ContactBook* contactBook;
 @property (nonatomic, strong) NSArray<ContactEntity*>* contactEntityList;
 @property (nonatomic, strong) NIMutableTableViewModel* model;
 @property (nonatomic, strong) UISearchController* searchController;
-@property (nonatomic, strong) ResultTableViewController* searchResultTableViewController;
 
 @end
 
-@implementation ContactsViewController
+@implementation FriendsTableViewController
 
 - (id)initWithStyle:(UITableViewStyle)style {
     
     if ((self = [super initWithStyle:UITableViewStylePlain])) {
-   
-        self.title = @"Contacts";
+        
+        self.title = @"Friend";
         _contactQueue = dispatch_queue_create("SHOWER_CONTACT_QUEUE", DISPATCH_QUEUE_SERIAL);
         [self setupTableMode];
         [self showContactBook];
@@ -43,16 +41,14 @@
 }
 
 - (void)viewDidLoad {
-   
+    
     [super viewDidLoad];
     
     UIBarButtonItem* backButton = [[UIBarButtonItem alloc] initWithTitle:@"Back" style: UIBarButtonItemStylePlain target:self action:@selector(backtoViewController)];
     self.navigationItem.leftBarButtonItem = backButton;
-
 }
 
 - (IBAction)backtoViewController {
-    
     [self dismissViewControllerAnimated:YES completion:nil]; // ios 6
 }
 
@@ -63,9 +59,8 @@
     _contactBook = [ContactBook sharedInstance];
     _model = [[NIMutableTableViewModel alloc] initWithDelegate:(id)[NICellFactory class]];
     [_model setSectionIndexType:NITableViewModelSectionIndexDynamic showsSearch:NO showsSummary:NO];
-   
+    
     self.tableView.dataSource = _model;
-    [self createSearchController];
 }
 
 #pragma mark - Show Contacts
@@ -75,35 +70,22 @@
     [_contactBook getPermissionContacts:^(NSError* error) {
         
         if((error.code == ContactAuthorizationStatusDenied) || (error.code == ContactAuthorizationStatusRestricted)) {
-           
+            
             [[[UIAlertView alloc] initWithTitle:@"This app requires access to your contacts to function properly." message: @"Please! Go to setting!" delegate:self cancelButtonTitle:@"CLOSE" otherButtonTitles:@"GO TO SETTING", nil] show];
         } else {
-           
+            
             [_contactBook getContacts:^(NSMutableArray* contactEntityList, NSError* error) {
                 if(error.code == ContactLoadingFailError) {
-                  
+                    
                     [[[UIAlertView alloc] initWithTitle:@"This Contact is empty." message: @"Please! Check your contacts and try again!" delegate:nil cancelButtonTitle:@"CLOSE" otherButtonTitles: nil, nil] show];
                 } else {
-                    
+                    _contactEntityList = nil;
                     _contactEntityList = [NSArray arrayWithArray:contactEntityList];
                     [self getContactBook];
                 }
             }];
         }
     }];
-}
-
-#pragma mark - Create searchBar
-
-- (void)createSearchController {
-    
-    _searchResultTableViewController = [[ResultTableViewController alloc] init];
-    _searchController = [[UISearchController alloc] initWithSearchResultsController:_searchResultTableViewController];
-    _searchController.searchResultsUpdater = self;
-    _searchController.searchBar.searchBarStyle = UISearchBarStyleMinimal;
-    _searchController.dimsBackgroundDuringPresentation = YES;
-    [_searchController.searchBar sizeToFit];
-    self.tableView.tableHeaderView = _searchController.searchBar;
 }
 
 #pragma mark - GetList Contact and add to models
@@ -114,18 +96,18 @@
         
         int contacts = (int)_contactEntityList.count;
         NSString* groupNameContact = @"";
-
+        
         // Run on background to get name group
         for (int i = 0; i < contacts; i++) {
             
-            NSString* name = [_contactEntityList[i].name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            NSString* name = [_contactEntityList[i].name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];//[_contactEntityList[i].name stringByReplacingOccurrencesOfString:@" " withString:@""];
             NSString* firstChar = [name substringToIndex:1];
             
             if ([groupNameContact.uppercaseString rangeOfString:firstChar.uppercaseString].location == NSNotFound) {
                 
                 groupNameContact = [groupNameContact stringByAppendingString:firstChar];
             }
-
+            
         }
         
         int characterGroupNameCount = (int)[groupNameContact length];
@@ -134,20 +116,24 @@
         for (int i = 0; i < contacts; i++) {
             
             if (i < characterGroupNameCount) {
- 
+                
                 [_model addSectionWithTitle:[groupNameContact substringWithRange:NSMakeRange(i,1)]];
             }
             
             ContactEntity* contactEntity = _contactEntityList[i];
             NSString* name = [_contactEntityList[i].name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];//[contactEntity.name stringByReplacingOccurrencesOfString:@" " withString:@""];
             NSString* firstChar = [name substringToIndex:1];
-        
+            
             NSRange range = [groupNameContact rangeOfString:firstChar];
-        
+            
             if (range.location != NSNotFound) {
                 
                 ContactCellObject* cellObject = [ContactCellObject objectWithTitle:contactEntity.name image:[contactEntity profileImageDefault]];
                 cellObject.contact = contactEntity;
+                
+//                MBContactModel *model = [[MBContactModel alloc] init];
+//                model.contactTitle = text;
+                
                 [_model addObject:cellObject toSection:range.location];
             }
         }
@@ -162,25 +148,10 @@
     });
 }
 
-#pragma mark - updateSearchResultViewController
-
-- (void)updateSearchResultsForSearchController:(UISearchController *)searchController {
-    
-    NSString* searchString = searchController.searchBar.text;
-    
-    if (searchString.length > 0) {
-
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"name contains[cd] %@", searchString];
-        _searchResultTableViewController.listContactBook = [_contactEntityList filteredArrayUsingPredicate:predicate];
-        [_searchResultTableViewController viewWillAppear:true];
-    }
-
-}
-
 #pragma mark - selected
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
- 
+    
     id object = [_model objectAtIndexPath:indexPath];
     ContactEntity* contactEntity = [(ContactCellObject *)object contact];
     NSLog(@"%@", contactEntity.name);
@@ -194,7 +165,7 @@
 #pragma mark - heigh for cell
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-  
+    
     CGFloat height = tableView.rowHeight;
     id object = [_model objectAtIndexPath:indexPath];
     id class = [object cellClass];
@@ -208,4 +179,3 @@
 }
 
 @end
-

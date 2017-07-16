@@ -118,7 +118,7 @@
    
         if (_isSupportiOS9) {
         
-            [self getContactsWithCNContacts:^(NSMutableArray* contactList, NSError* error) {
+            [self getContactsWithCNContacts:^(NSMutableArray* contactEntityList, NSError* error) {
                 
                 if (error) {
                     
@@ -130,7 +130,7 @@
                     
                     if (completion) {
                         
-                        completion(contactList, nil);
+                        completion(contactEntityList, nil);
                     }
                 }
                 
@@ -288,6 +288,7 @@
         
         if (granted) {
             
+            _contactEntityList = [[NSMutableArray alloc] init];
             // Feilds with fetching properties
             NSArray* feild = @[CNContactFamilyNameKey, CNContactGivenNameKey, CNContactPhoneNumbersKey, CNContactImageDataKey];
             CNContactFetchRequest* request = [[CNContactFetchRequest alloc] initWithKeysToFetch:feild];
@@ -307,6 +308,7 @@
                     if(contact) {
                         
                         ContactEntity* contactEntity = [[ContactEntity alloc] initWithCNContacts:contact];
+                        
                         [_contactEntityList addObject:contactEntity];
                       
                         // Get image
@@ -356,6 +358,8 @@
         });
         
     } else {
+        
+        _contactEntityList = [[NSMutableArray alloc] init];
         
         for (CFIndex i = 0; i < CFArrayGetCount(peopleMutable); i++) {
             
