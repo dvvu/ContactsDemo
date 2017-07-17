@@ -20,7 +20,7 @@
 @property (nonatomic, weak) NSString* identifier;
 @property (nonatomic, copy) NSString* contactTitle;
 @property (nonatomic) UIImage* contactImage;
-@property (nonatomic, weak) id contact;
+@property (nonatomic) BOOL isContactImageFromCache;
 
 - (void)getImageCacheForCell: (UITableViewCell *)cell;
 

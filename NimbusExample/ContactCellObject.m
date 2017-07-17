@@ -22,15 +22,14 @@
     
     __weak ContactTableViewCell* contactTableViewCell = (ContactTableViewCell *)cell;
     
-    ContactEntity* contactEntity = _contact;
-    
-    [[ContactCache sharedInstance] getImageForKey:contactEntity.identifier completionWith:^(UIImage* image) {
+    [[ContactCache sharedInstance] getImageForKey:_identifier completionWith:^(UIImage* image) {
         
         if (image) {
             
             _contactImage = image;
+            _isContactImageFromCache = YES;
             
-            if ([contactEntity.identifier isEqualToString:contactTableViewCell.identifier]) {
+            if ([_identifier isEqualToString:contactTableViewCell.identifier]) {
                 
                 dispatch_async(dispatch_get_main_queue(), ^ {
                     

@@ -55,10 +55,11 @@
             
             for (ContactEntity* contactEntity in _listContactBook) {
                 
-                ContactCellObject* cellObject = [ContactCellObject objectWithTitle:contactEntity.name image:[contactEntity profileImageDefault]];
-                cellObject.contact = contactEntity;
+                ContactCellObject* cellObject = [[ContactCellObject alloc] init];
                 cellObject.contactTitle = contactEntity.name;
-                [objects addObject:(id<ContactModelProtocol>)cellObject];
+                cellObject.identifier = contactEntity.identifier;
+                cellObject.contactImage = contactEntity.profileImageDefault;
+                [objects addObject:cellObject];
             }
             
             _model = [[NITableViewModel alloc] initWithListArray:objects delegate:self];
@@ -77,9 +78,8 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    id object = [_model objectAtIndexPath:indexPath];
-    ContactEntity* contactEntity = [(ContactCellObject *)object contact];
-    NSLog(@"%@",  contactEntity.phone);
+    ContactCellObject* cellObject = [_model objectAtIndexPath:indexPath];
+    NSLog(@"%@", cellObject.contactTitle);
     
     [UIView animateWithDuration:0.2 animations: ^ {
         
@@ -103,30 +103,28 @@
     return height;
 }
 
+#pragma mark - Nimbus tableViewDelegate
+
 - (UITableViewCell *)tableViewModel:(NITableViewModel *)tableViewModel cellForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath withObject:(id)object {
     
     ContactTableViewCell* contactTableViewCell = [tableView dequeueReusableCellWithIdentifier:@"ContactTableViewCell" forIndexPath:indexPath];
     
     if (contactTableViewCell.model != object) {
-     
-        ContactEntity* contactEntity = [object contact];
-        ContactCellObject* cellObject = (ContactCellObject *)object;
         
-        contactTableViewCell.identifier = contactEntity.identifier;
+        ContactCellObject* cellObject = (ContactCellObject *)object;
+        contactTableViewCell.identifier = cellObject.identifier;
         contactTableViewCell.model = object;
         
-        UIImage* image = cellObject.contactImage;
-        
-        if(image) {
+        if(cellObject.isContactImageFromCache) {
             
-            cellObject.contactImage = image;
+            cellObject.contactImage = cellObject.contactImage;
         } else {
             
-            cellObject.contactImage = contactEntity.profileImageDefault;
             [cellObject getImageCacheForCell:contactTableViewCell];
         }
         
         [contactTableViewCell shouldUpdateCellWithObject:object];
+        
     }
     
     return contactTableViewCell;

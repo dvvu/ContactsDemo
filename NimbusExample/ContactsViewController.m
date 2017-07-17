@@ -158,8 +158,9 @@
             if (range.location != NSNotFound) {
                 
                 ContactCellObject* cellObject = [[ContactCellObject alloc] init];
-                cellObject.contact = contactEntity;
                 cellObject.contactTitle = contactEntity.name;
+                cellObject.identifier = contactEntity.identifier;
+                cellObject.contactImage = contactEntity.profileImageDefault;
                 [_model addObject:cellObject toSection:range.location];
             }
         }
@@ -193,9 +194,8 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
  
-    id object = [_model objectAtIndexPath:indexPath];
-    ContactEntity* contactEntity = [(ContactCellObject *)object contact];
-    NSLog(@"%@", contactEntity.name);
+    ContactCellObject* cellObject = [_model objectAtIndexPath:indexPath];
+    NSLog(@"%@", cellObject.contactTitle);
     
     [UIView animateWithDuration:0.2 animations: ^ {
         
@@ -219,26 +219,23 @@
     return height;
 }
 
+#pragma mark - Nimbus tableViewDelegate
+
 - (UITableViewCell *)tableViewModel:(NITableViewModel *)tableViewModel cellForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath withObject:(id)object {
     
     ContactTableViewCell* contactTableViewCell = [tableView dequeueReusableCellWithIdentifier:@"ContactTableViewCell" forIndexPath:indexPath];
    
     if (contactTableViewCell.model != object) {
-        
-        ContactEntity* contactEntity = [object contact];
+    
         ContactCellObject* cellObject = (ContactCellObject *)object;
-        
-        contactTableViewCell.identifier = contactEntity.identifier;
+        contactTableViewCell.identifier = cellObject.identifier;
         contactTableViewCell.model = object;
         
-        UIImage* image = cellObject.contactImage;
-        
-        if(image) {
+        if(cellObject.isContactImageFromCache) {
             
-            cellObject.contactImage = image;
+            cellObject.contactImage = cellObject.contactImage;
         } else {
             
-            cellObject.contactImage = contactEntity.profileImageDefault;
             [cellObject getImageCacheForCell:contactTableViewCell];
         }
         
