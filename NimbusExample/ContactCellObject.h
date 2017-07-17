@@ -17,10 +17,10 @@
 
 @interface ContactCellObject : NITitleCellObject <ContactModelProtocol>
 
-@property (nonatomic, weak) NSString* identifier;
-@property (nonatomic, copy) NSString* contactTitle;
-@property (nonatomic) UIImage* contactImage;
 @property (nonatomic) BOOL isContactImageFromCache;
+@property (nonatomic, copy) NSString* contactTitle;
+@property (nonatomic, weak) NSString* identifier;
+@property (nonatomic) UIImage* contactImage;
 
 - (void)getImageCacheForCell: (UITableViewCell *)cell;
 

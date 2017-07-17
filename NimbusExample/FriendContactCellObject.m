@@ -8,8 +8,6 @@
 
 #import "FriendContactCellObject.h"
 #import "ContactTableViewCell.h"
-#import "ContactEntity.h"
-#import "ContactCache.h"
 
 @implementation FriendContactCellObject
 

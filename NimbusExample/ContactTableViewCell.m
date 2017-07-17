@@ -7,10 +7,6 @@
 //
 
 #import "ContactTableViewCell.h"
-#import "ContactEntity.h"
-#import "ContactCache.h"
-#import "ContactCellObject.h"
-#import "FriendContactCellObject.h"
 
 @implementation ContactTableViewCell
 

@@ -8,7 +8,6 @@
 
 #import "ContactEntity.h"
 #import "Constants.h"
-#import "ContactCache.h"
 
 @interface ContactEntity()
 

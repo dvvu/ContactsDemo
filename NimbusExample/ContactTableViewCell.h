@@ -7,7 +7,6 @@
 //
 
 #import "ContactCellObject.h"
-#import "NimbusModels.h"
 #import <UIKit/UIKit.h>
 
 @interface ContactTableViewCell : UITableViewCell <NICell>
