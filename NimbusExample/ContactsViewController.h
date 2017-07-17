@@ -10,4 +10,7 @@
 
 @interface ContactsViewController : UITableViewController
 
+#pragma mark - singleton
++ (instancetype)sharedInstance;
+
 @end

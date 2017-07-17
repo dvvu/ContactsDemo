@@ -312,7 +312,7 @@
                         [_contactEntityList addObject:contactEntity];
                       
                         // Get image
-                        UIImage* image = [UIImage imageNamed:@"d"];//[UIImage imageWithData:contact.imageData];
+                        UIImage* image = [UIImage imageNamed:@"t"];//[UIImage imageWithData:contact.imageData];
                         if (image) {
                             
                             [[ContactCache sharedInstance] setImageForKey:image forKey:contact.identifier];

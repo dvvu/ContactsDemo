@@ -7,9 +7,10 @@
 //
 
 #import "ContactTableViewCell.h"
-#import "ContactCellObject.h"
 #import "ContactEntity.h"
 #import "ContactCache.h"
+#import "ContactCellObject.h"
+#import "FriendContactCellObject.h"
 
 @implementation ContactTableViewCell
 
@@ -51,26 +52,17 @@
 
 #pragma mark - delegate oif NICell -> change when something is changed in cell
 
-- (BOOL)shouldUpdateCellWithObject:(id)object {
-    
-    ContactCellObject* contactCellObject = (ContactCellObject *)object;
-    ContactEntity* contactEntity = [contactCellObject contact];
-    
-    _identifier = contactEntity.identifier;
-    _nameLabel.text = contactEntity.name;
-    
-    UIImage* imageFromCache = contactCellObject.imageFromCache;
-    
-    if (imageFromCache) {
-        
-        _profileImageView.image = imageFromCache;
-    } else {
-        
-        _profileImageView.image = contactEntity.profileImageDefault;
-        [contactCellObject getImageCacheForCell:self];
-    }
+- (BOOL)shouldUpdateCellWithObject:(id<ContactModelProtocol>)object {
 
+    _nameLabel.text = object.contactTitle;
+    _profileImageView.image = object.contactImage;
+    
     return YES;
+}
+
+- (void)setModel:(id<ContactModelProtocol>)model {
+    
+    _model = model;
 }
 
 #pragma mark - update layout

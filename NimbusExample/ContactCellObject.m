@@ -6,6 +6,7 @@
 //  Copyright © 2017 Vu Doan. All rights reserved.
 //
 
+#import "ContactTableViewCell.h"
 #import "ContactCellObject.h"
 #import "ContactEntity.h"
 #import "ContactCache.h"
@@ -17,9 +18,9 @@
     return [ContactTableViewCell class];
 }
 
-- (void)getImageCacheForCell: (ContactTableViewCell *)cell {
+- (void)getImageCacheForCell: (UITableViewCell *)cell {
     
-    __weak ContactTableViewCell* contactTableViewCell = cell;
+    __weak ContactTableViewCell* contactTableViewCell = (ContactTableViewCell *)cell;
     
     ContactEntity* contactEntity = _contact;
     
@@ -27,7 +28,7 @@
         
         if (image) {
             
-            _imageFromCache = image;
+            _contactImage = image;
             
             if ([contactEntity.identifier isEqualToString:contactTableViewCell.identifier]) {
                 

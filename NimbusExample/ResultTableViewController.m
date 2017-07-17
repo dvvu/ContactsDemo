@@ -7,19 +7,18 @@
 //
 
 #import "ResultTableViewController.h"
-#import "ContactTableViewCell.h"
 #import "NimbusModels.h"
 #import "ContactCellObject.h"
+#import "ContactTableViewCell.h"
 #import "ContactBook.h"
 #import "NimbusCore.h"
 #import "ContactEntity.h"
 #import "ContactCache.h"
 
-@interface ResultTableViewController ()
+@interface ResultTableViewController () <NITableViewModelDelegate>
 
 @property (nonatomic) dispatch_queue_t resultSearchContactQueue;
 @property (nonatomic, strong ) NITableViewModel* model;
-@property (nonatomic, strong) NICellFactory* cellFactory;
 
 @end
 
@@ -27,15 +26,15 @@
 
 - (void)viewDidLoad {
 
-    [super viewDidLoad];    
+    [super viewDidLoad];
+    
     self.edgesForExtendedLayout = UIRectEdgeNone;
     self.tableView.contentInset = UIEdgeInsetsMake(10, 0, 0, 0);
     // Dimiss keyboard when drag
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
+    [self.tableView registerClass:[ContactTableViewCell class] forCellReuseIdentifier:@"ContactTableViewCell"];
     
     _resultSearchContactQueue = dispatch_queue_create("RESULT_SEARCH_CONTACT_QUEUE", DISPATCH_QUEUE_SERIAL);
-    _cellFactory = [[NICellFactory alloc] init];
-    [_cellFactory mapObjectClass:[ContactCellObject class] toCellClass:[ContactTableViewCell class]];
 }
 
 -(void)viewWillAppear:(BOOL)animated {
@@ -58,10 +57,11 @@
                 
                 ContactCellObject* cellObject = [ContactCellObject objectWithTitle:contactEntity.name image:[contactEntity profileImageDefault]];
                 cellObject.contact = contactEntity;
-                [objects addObject:cellObject];
+                cellObject.contactTitle = contactEntity.name;
+                [objects addObject:(id<ContactModelProtocol>)cellObject];
             }
             
-            _model = [[NITableViewModel alloc] initWithListArray:objects delegate:_cellFactory];
+            _model = [[NITableViewModel alloc] initWithListArray:objects delegate:self];
             self.tableView.dataSource = _model;
             
             dispatch_async(dispatch_get_main_queue(), ^ {
@@ -101,6 +101,35 @@
     }
     
     return height;
+}
+
+- (UITableViewCell *)tableViewModel:(NITableViewModel *)tableViewModel cellForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath withObject:(id)object {
+    
+    ContactTableViewCell* contactTableViewCell = [tableView dequeueReusableCellWithIdentifier:@"ContactTableViewCell" forIndexPath:indexPath];
+    
+    if (contactTableViewCell.model != object) {
+     
+        ContactEntity* contactEntity = [object contact];
+        ContactCellObject* cellObject = (ContactCellObject *)object;
+        
+        contactTableViewCell.identifier = contactEntity.identifier;
+        contactTableViewCell.model = object;
+        
+        UIImage* image = cellObject.contactImage;
+        
+        if(image) {
+            
+            cellObject.contactImage = image;
+        } else {
+            
+            cellObject.contactImage = contactEntity.profileImageDefault;
+            [cellObject getImageCacheForCell:contactTableViewCell];
+        }
+        
+        [contactTableViewCell shouldUpdateCellWithObject:object];
+    }
+    
+    return contactTableViewCell;
 }
 
 @end

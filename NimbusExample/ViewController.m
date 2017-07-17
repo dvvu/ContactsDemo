@@ -35,18 +35,17 @@
 
 - (IBAction)gotoContactsTableViewController:(id)sender {
     
-    ContactsViewController* contactsViewController = [[ContactsViewController alloc] init];
-    UINavigationController* navContactsViewController = [[UINavigationController alloc] initWithRootViewController:contactsViewController];
-    [self.navigationController presentViewController:navContactsViewController animated:YES completion:nil];
+    ContactsViewController* contactsViewController = [ContactsViewController sharedInstance];
+    [self.navigationController pushViewController:contactsViewController animated:YES];
 }
 
 
 - (IBAction)gotoFriendsableViewController:(id)sender {
     
     FriendsTableViewController* friendsViewController = [[FriendsTableViewController alloc] init];
-    UINavigationController* navFriendsViewController = [[UINavigationController alloc] initWithRootViewController:friendsViewController];
-    [self.navigationController presentViewController:navFriendsViewController animated:YES completion:nil];
+    [self.navigationController pushViewController:friendsViewController animated:YES];
 }
+
 @end
 
 

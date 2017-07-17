@@ -114,8 +114,7 @@
                     completion(image);
                 } else {
                     
-                    // Disk
-                    completion([self getImageFromDirectory: key]);
+                   completion(nil);
                 }
             }
         } else {
@@ -132,7 +131,7 @@
 
 - (CGFloat)imageSize:(UIImage *)image {
     
-    return image.size.height * image.size.width * 3 * [UIScreen mainScreen].scale;
+    return image.size.height * image.size.width * [UIScreen mainScreen].scale;
 }
 
 #pragma mark - write image into cache
@@ -145,39 +144,6 @@
     }
 }
 
-#pragma mark - write image into dir
-
-- (void)writeToDirectory:(UIImage *)image forkey:(NSString *)key {
-    
-    if (image != nil) {
-        
-        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString* documentsDirectory = [paths objectAtIndex:0];
-        NSString* path = [documentsDirectory stringByAppendingPathComponent:key];
-        NSString* imagePath = [path stringByAppendingPathComponent:@"image.png"];
-       
-        BOOL isDirectory;
-        NSFileManager* fileManager = [NSFileManager defaultManager];
-        
-        if(![fileManager fileExistsAtPath:imagePath isDirectory:&isDirectory]) {
-            
-            NSError* error = nil;
-            [fileManager createDirectoryAtPath:imagePath withIntermediateDirectories:YES attributes:nil error:&error];
-           
-            if(error) {
-               
-                NSLog(@"folder creation failed. %@",[error localizedDescription]);
-            } else {
-                
-                NSData* imageData = UIImagePNGRepresentation(image);
-                [imageData writeToFile:imagePath atomically:YES];
-            }
-            
-        }
-
-    }
-}
-
 #pragma mark - get image from cache
 
 - (UIImage *)getImageFromCache:(NSString *)key {
@@ -185,27 +151,6 @@
     if (key) {
         
         return [_contactCache objectForKey:key];
-    }
-    
-    return nil;
-}
-
-#pragma mark - get image from dir
-
-- (UIImage *)getImageFromDirectory:(NSString *)key {
-  
-    if (key) {
-        
-        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString* documentsDirectory = [paths objectAtIndex:0];
-        NSString* path = [documentsDirectory stringByAppendingPathComponent:key];
-        NSString* imagePath = [path stringByAppendingPathComponent:@"image.png"];
-        
-        if ([[NSFileManager defaultManager] fileExistsAtPath:imagePath]) {
-         
-            UIImage* image = [UIImage imageWithContentsOfFile:imagePath];
-            return image;
-        }
     }
     
     return nil;

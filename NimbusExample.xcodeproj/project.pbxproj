@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		EA0C1D931F1A6DDB00078BF1 /* FriendsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EA0C1D921F1A6DDB00078BF1 /* FriendsTableViewController.m */; };
 		EA0EF0581F0C7E7600A40A58 /* ContactCellObject.m in Sources */ = {isa = PBXBuildFile; fileRef = EA0EF0571F0C7E7600A40A58 /* ContactCellObject.m */; };
+		EA14F4CB1F1BC8D900597093 /* FriendContactCellObject.m in Sources */ = {isa = PBXBuildFile; fileRef = EA14F4CA1F1BC8D900597093 /* FriendContactCellObject.m */; };
 		EA28FEB71F0DE981005345EE /* ContactTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EA28FEB51F0DE981005345EE /* ContactTableViewCell.m */; };
 		EA2B009B1EFCEF66002344DF /* ContactBook.m in Sources */ = {isa = PBXBuildFile; fileRef = EA2B009A1EFCEF66002344DF /* ContactBook.m */; };
 		EA30668B1F00A1580087F78B /* ResultTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EA30668A1F00A1580087F78B /* ResultTableViewController.m */; };
@@ -78,6 +79,8 @@
 		EA0C1D921F1A6DDB00078BF1 /* FriendsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FriendsTableViewController.m; sourceTree = "<group>"; };
 		EA0EF0561F0C7E7600A40A58 /* ContactCellObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactCellObject.h; sourceTree = "<group>"; };
 		EA0EF0571F0C7E7600A40A58 /* ContactCellObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactCellObject.m; sourceTree = "<group>"; };
+		EA14F4C91F1BC8D900597093 /* FriendContactCellObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FriendContactCellObject.h; sourceTree = "<group>"; };
+		EA14F4CA1F1BC8D900597093 /* FriendContactCellObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FriendContactCellObject.m; sourceTree = "<group>"; };
 		EA28FEB41F0DE981005345EE /* ContactTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactTableViewCell.h; sourceTree = "<group>"; };
 		EA28FEB51F0DE981005345EE /* ContactTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactTableViewCell.m; sourceTree = "<group>"; };
 		EA2B009A1EFCEF66002344DF /* ContactBook.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactBook.m; sourceTree = "<group>"; };
@@ -247,6 +250,8 @@
 				EA28FEB51F0DE981005345EE /* ContactTableViewCell.m */,
 				EA0EF0561F0C7E7600A40A58 /* ContactCellObject.h */,
 				EA0EF0571F0C7E7600A40A58 /* ContactCellObject.m */,
+				EA14F4C91F1BC8D900597093 /* FriendContactCellObject.h */,
+				EA14F4CA1F1BC8D900597093 /* FriendContactCellObject.m */,
 			);
 			name = ContactCells;
 			sourceTree = "<group>";
@@ -581,6 +586,7 @@
 				F8E82C5B1EF2653900A4CB95 /* NICellFactory.m in Sources */,
 				F8E82C371EF2651900A4CB95 /* NINetworkActivity.m in Sources */,
 				F8E82C5E1EF2653900A4CB95 /* NIRadioGroup.m in Sources */,
+				EA14F4CB1F1BC8D900597093 /* FriendContactCellObject.m in Sources */,
 				EABC807F1F04E21D0061779F /* ContactCache.m in Sources */,
 				F8E82C341EF2651900A4CB95 /* NIFoundationMethods.m in Sources */,
 				F8E82C3D1EF2651900A4CB95 /* NISDKAvailability.m in Sources */,

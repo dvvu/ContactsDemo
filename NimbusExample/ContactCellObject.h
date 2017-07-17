@@ -6,14 +6,22 @@
 //  Copyright © 2017 Vu Doan. All rights reserved.
 //
 
-#import "ContactTableViewCell.h"
 #import "NICellCatalog.h"
 
-@interface ContactCellObject : NITitleCellObject
+@protocol ContactModelProtocol <NSObject>
 
-@property(nonatomic, weak) UIImage* imageFromCache;
-@property(nonatomic, weak) id contact;
+@property (readonly, nonatomic, copy) NSString* contactTitle;
+@property (readonly, nonatomic) UIImage* contactImage;
 
-- (void)getImageCacheForCell: (ContactTableViewCell *)cell;
+@end
+
+@interface ContactCellObject : NITitleCellObject <ContactModelProtocol>
+
+@property (nonatomic, weak) NSString* identifier;
+@property (nonatomic, copy) NSString* contactTitle;
+@property (nonatomic) UIImage* contactImage;
+@property (nonatomic, weak) id contact;
+
+- (void)getImageCacheForCell: (UITableViewCell *)cell;
 
 @end

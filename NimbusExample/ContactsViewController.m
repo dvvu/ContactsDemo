@@ -15,8 +15,9 @@
 #import "ContactBook.h"
 #import "NimbusCore.h"
 #import "Constants.h"
+#import "ContactCache.h"
 
-@interface ContactsViewController () <UITableViewDelegate, UISearchResultsUpdating>
+@interface ContactsViewController () <NITableViewModelDelegate, UISearchResultsUpdating>
 
 @property (nonatomic) dispatch_queue_t contactQueue;
 @property (nonatomic, strong) ContactBook* contactBook;
@@ -29,14 +30,28 @@
 
 @implementation ContactsViewController
 
-- (id)initWithStyle:(UITableViewStyle)style {
+#pragma mark - singleton
+
++ (instancetype)sharedInstance {
     
-    if ((self = [super initWithStyle:UITableViewStylePlain])) {
-   
-        self.title = @"Contacts";
+    static ContactsViewController* sharedInstance;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^ {
+        
+        sharedInstance = [[ContactsViewController alloc] init];
+    });
+    
+    return sharedInstance;
+}
+
+- (instancetype)init {
+    
+    self = [super init];
+    
+    if (self) {
+    
         _contactQueue = dispatch_queue_create("SHOWER_CONTACT_QUEUE", DISPATCH_QUEUE_SERIAL);
-        [self setupTableMode];
-        [self showContactBook];
     }
     
     return self;
@@ -45,15 +60,10 @@
 - (void)viewDidLoad {
    
     [super viewDidLoad];
-    
-    UIBarButtonItem* backButton = [[UIBarButtonItem alloc] initWithTitle:@"Back" style: UIBarButtonItemStylePlain target:self action:@selector(backtoViewController)];
-    self.navigationItem.leftBarButtonItem = backButton;
-
-}
-
-- (IBAction)backtoViewController {
-    
-    [self dismissViewControllerAnimated:YES completion:nil]; // ios 6
+   
+    self.title = @"Contacts";
+    [self setupTableMode];
+    [self showContactBook];
 }
 
 #pragma mark - config TableMode
@@ -61,9 +71,10 @@
 - (void)setupTableMode {
     
     _contactBook = [ContactBook sharedInstance];
-    _model = [[NIMutableTableViewModel alloc] initWithDelegate:(id)[NICellFactory class]];
+    _model = [[NIMutableTableViewModel alloc] initWithDelegate:self];
     [_model setSectionIndexType:NITableViewModelSectionIndexDynamic showsSearch:NO showsSummary:NO];
    
+    [self.tableView registerClass:[ContactTableViewCell class] forCellReuseIdentifier:@"ContactTableViewCell"];
     self.tableView.dataSource = _model;
     [self createSearchController];
 }
@@ -139,15 +150,16 @@
             }
             
             ContactEntity* contactEntity = _contactEntityList[i];
-            NSString* name = [_contactEntityList[i].name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];//[contactEntity.name stringByReplacingOccurrencesOfString:@" " withString:@""];
+            NSString* name = [_contactEntityList[i].name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
             NSString* firstChar = [name substringToIndex:1];
         
             NSRange range = [groupNameContact rangeOfString:firstChar];
         
             if (range.location != NSNotFound) {
                 
-                ContactCellObject* cellObject = [ContactCellObject objectWithTitle:contactEntity.name image:[contactEntity profileImageDefault]];
+                ContactCellObject* cellObject = [[ContactCellObject alloc] init];
                 cellObject.contact = contactEntity;
+                cellObject.contactTitle = contactEntity.name;
                 [_model addObject:cellObject toSection:range.location];
             }
         }
@@ -205,6 +217,36 @@
     }
     
     return height;
+}
+
+- (UITableViewCell *)tableViewModel:(NITableViewModel *)tableViewModel cellForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath withObject:(id)object {
+    
+    ContactTableViewCell* contactTableViewCell = [tableView dequeueReusableCellWithIdentifier:@"ContactTableViewCell" forIndexPath:indexPath];
+   
+    if (contactTableViewCell.model != object) {
+        
+        ContactEntity* contactEntity = [object contact];
+        ContactCellObject* cellObject = (ContactCellObject *)object;
+        
+        contactTableViewCell.identifier = contactEntity.identifier;
+        contactTableViewCell.model = object;
+        
+        UIImage* image = cellObject.contactImage;
+        
+        if(image) {
+            
+            cellObject.contactImage = image;
+        } else {
+            
+            cellObject.contactImage = contactEntity.profileImageDefault;
+            [cellObject getImageCacheForCell:contactTableViewCell];
+        }
+        
+        [contactTableViewCell shouldUpdateCellWithObject:object];
+    
+    }
+  
+    return contactTableViewCell;
 }
 
 @end
