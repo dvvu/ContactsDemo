@@ -97,7 +97,7 @@
                 } else {
                     
                     _contactEntityList = [NSArray arrayWithArray:contactEntityList];
-                    [self getContactBook];
+                    [self setupData];
                 }
             }];
         }
@@ -119,7 +119,7 @@
 
 #pragma mark - GetList Contact and add to models
 
-- (void)getContactBook {
+- (void)setupData {
     
     dispatch_async(_contactQueue, ^ {
         
@@ -230,17 +230,9 @@
         ContactCellObject* cellObject = (ContactCellObject *)object;
         contactTableViewCell.identifier = cellObject.identifier;
         contactTableViewCell.model = object;
-        
-        if(cellObject.isContactImageFromCache) {
-            
-            cellObject.contactImage = cellObject.contactImage;
-        } else {
-            
-            [cellObject getImageCacheForCell:contactTableViewCell];
-        }
-        
-        [contactTableViewCell shouldUpdateCellWithObject:object];
+        [cellObject getImageCacheForCell:contactTableViewCell];
     
+        [contactTableViewCell shouldUpdateCellWithObject:object];
     }
   
     return contactTableViewCell;

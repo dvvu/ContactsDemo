@@ -114,17 +114,9 @@
         ContactCellObject* cellObject = (ContactCellObject *)object;
         contactTableViewCell.identifier = cellObject.identifier;
         contactTableViewCell.model = object;
-        
-        if(cellObject.isContactImageFromCache) {
-            
-            cellObject.contactImage = cellObject.contactImage;
-        } else {
-            
-            [cellObject getImageCacheForCell:contactTableViewCell];
-        }
+        [cellObject getImageCacheForCell:contactTableViewCell];
         
         [contactTableViewCell shouldUpdateCellWithObject:object];
-        
     }
     
     return contactTableViewCell;

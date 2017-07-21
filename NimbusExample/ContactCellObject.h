@@ -17,7 +17,6 @@
 
 @interface ContactCellObject : NITitleCellObject <ContactModelProtocol>
 
-@property (nonatomic) BOOL isContactImageFromCache;
 @property (nonatomic, copy) NSString* contactTitle;
 @property (nonatomic, weak) NSString* identifier;
 @property (nonatomic) UIImage* contactImage;

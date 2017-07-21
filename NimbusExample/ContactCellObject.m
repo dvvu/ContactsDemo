@@ -24,9 +24,6 @@
         
         if (image) {
             
-            _contactImage = image;
-            _isContactImageFromCache = YES;
-            
             if ([_identifier isEqualToString:contactTableViewCell.identifier]) {
                 
                 dispatch_async(dispatch_get_main_queue(), ^ {
